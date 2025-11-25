@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { X, Plus, Minus, Star } from 'lucide-react'
+import { X, Plus, Minus, Star, Info } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
@@ -145,6 +145,17 @@ export default function AddToCartModal({ item, isOpen, onClose, onAddToCart }: A
             <div>
               <h3 className="font-semibold text-lg mb-2">What's in the Meal</h3>
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{item.description}</p>
+            </div>
+          )}
+
+          {/* Internal Notes - Important Information from Staff */}
+          {item.internal_notes && (
+            <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border-2 border-purple-200 dark:border-purple-800 rounded-xl p-5">
+              <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
+                <Info size={20} className="text-purple-600" />
+                Important Information
+              </h3>
+              <p className="text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-line">{item.internal_notes}</p>
             </div>
           )}
 
