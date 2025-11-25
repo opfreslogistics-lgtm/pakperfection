@@ -1,9 +1,12 @@
 -- Fix contact_submissions RLS policies
 -- Allow anyone to submit contact forms (like event bookings)
 
--- Drop existing policies if any
+-- Drop ALL existing policies first
 DROP POLICY IF EXISTS "Anyone can create contact submissions" ON contact_submissions;
 DROP POLICY IF EXISTS "Public can insert contact submissions" ON contact_submissions;
+DROP POLICY IF EXISTS "Admins can view contact submissions" ON contact_submissions;
+DROP POLICY IF EXISTS "Admins can update contact submissions" ON contact_submissions;
+DROP POLICY IF EXISTS "Admins can delete contact submissions" ON contact_submissions;
 
 -- Create INSERT policy to allow anyone to submit contact forms
 CREATE POLICY "Anyone can create contact submissions"
