@@ -24,24 +24,36 @@ export default function ContactPage() {
     setLoading(true)
 
     try {
-      // Submit via API route (server-side) to avoid RLS issues
-      const response = await fetch('/api/contact/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      })
+      // Insert contact submission - SAME AS EVENT BOOKINGS (client-side insert)
+      const { data: submission, error } = await supabase
+        .from('contact_submissions')
+        .insert({
+          name: formData.name,
+          email: formData.email,
+          phone: formData.phone || null,
+          subject: formData.subject || null,
+          message: formData.message,
+        })
+        .select()
+        .single()
 
-      const result = await response.json()
+      if (error) throw error
 
-      if (!response.ok || !result.success) {
-        throw new Error(result.error || result.details || 'Failed to submit contact form')
+      // Send confirmation emails
+      if (submission?.id) {
+        try {
+          await fetch('/api/email/send-contact-email', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ submissionId: submission.id }),
+          })
+        } catch (emailError) {
+          console.error('Email error:', emailError)
+          // Don't fail if email fails
+        }
       }
 
       toast.success('Message sent successfully! You will receive a confirmation email shortly.')
-      
-      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -50,8 +62,8 @@ export default function ContactPage() {
         message: '',
       })
     } catch (error: any) {
-      console.error('Contact form submission error:', error)
-      toast.error(error.message || 'Failed to send message. Please try again.')
+      console.error('Contact form error:', error)
+      toast.error(error.message || 'Failed to send message')
     } finally {
       setLoading(false)
     }
