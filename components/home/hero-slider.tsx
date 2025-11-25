@@ -97,40 +97,42 @@ export default function HeroSlider() {
               />
             </div>
             
-            {/* Enhanced gradient overlay */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/40 to-black/30" />
+            {/* Enhanced gradient overlay - darker on the left for text readability */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/30" />
             
-            {/* Content */}
-            <div className="absolute inset-0 flex items-center justify-center">
-              <div className="text-center text-white px-4 max-w-5xl">
-                {/* Animated title */}
-                <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold mb-6 ${
-                  index === currentSlide ? 'animate-fadeInUp' : 'opacity-0'
-                }`} style={{ animationDelay: '0.2s' }}>
-                  <span className="inline-block bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent">
-                    {slide.title}
-                  </span>
-                </h1>
-                
-                {/* Animated subtitle */}
-                <p className={`text-xl md:text-3xl mb-10 font-light tracking-wide ${
-                  index === currentSlide ? 'animate-fadeInUp' : 'opacity-0'
-                }`} style={{ animationDelay: '0.4s' }}>
-                  {slide.subtitle}
-                </p>
-                
-                {/* Animated CTA button */}
-                <div className={index === currentSlide ? 'animate-fadeInUp' : 'opacity-0'} style={{ animationDelay: '0.6s' }}>
-                  <button className="group relative bg-gradient-to-r from-red-600 via-red-500 to-yellow-500 text-white px-10 py-4 rounded-2xl font-bold hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-xl overflow-hidden">
-                    <span className="relative z-10 flex items-center gap-2">
-                      {slide.cta}
-                      <svg className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
+            {/* Content - Left aligned */}
+            <div className="absolute inset-0 flex items-center">
+              <div className="container mx-auto px-8 md:px-16 lg:px-20">
+                <div className="text-left text-white max-w-3xl">
+                  {/* Animated title */}
+                  <h1 className={`text-4xl md:text-6xl lg:text-7xl font-bold mb-6 ${
+                    index === currentSlide ? 'animate-fadeInUp' : 'opacity-0'
+                  }`} style={{ animationDelay: '0.2s' }}>
+                    <span className="inline-block bg-gradient-to-r from-white via-yellow-200 to-white bg-clip-text text-transparent">
+                      {slide.title}
                     </span>
-                    {/* Shine effect */}
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                  </button>
+                  </h1>
+                  
+                  {/* Animated subtitle */}
+                  <p className={`text-xl md:text-3xl mb-10 font-light tracking-wide ${
+                    index === currentSlide ? 'animate-fadeInUp' : 'opacity-0'
+                  }`} style={{ animationDelay: '0.4s' }}>
+                    {slide.subtitle}
+                  </p>
+                  
+                  {/* Animated CTA button */}
+                  <div className={index === currentSlide ? 'animate-fadeInUp' : 'opacity-0'} style={{ animationDelay: '0.6s' }}>
+                    <button className="group relative bg-gradient-to-r from-red-600 via-red-500 to-yellow-500 text-white px-10 py-4 rounded-2xl font-bold hover:shadow-2xl hover:scale-105 transition-all duration-300 shadow-xl overflow-hidden">
+                      <span className="relative z-10 flex items-center gap-2">
+                        {slide.cta}
+                        <svg className="w-5 h-5 group-hover:translate-x-2 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </svg>
+                      </span>
+                      {/* Shine effect */}
+                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
@@ -172,6 +174,31 @@ export default function HeroSlider() {
             aria-label={`Go to slide ${index + 1}`}
           />
         ))}
+      </div>
+
+      {/* Fixed Owner Image - Bottom Right with Animations */}
+      <div className="absolute bottom-0 right-0 w-64 md:w-96 lg:w-[500px] h-auto pointer-events-none z-10">
+        <div className="relative w-full h-full animate-float">
+          {/* Glow effect behind the image */}
+          <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/30 via-red-500/20 to-transparent blur-3xl animate-pulse-slow"></div>
+          
+          {/* Owner transparent image - Replace this URL with your image */}
+          <Image
+            src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=500&h=600&fit=crop&crop=faces"
+            alt="Chef Owner"
+            width={500}
+            height={600}
+            className="relative z-10 object-contain drop-shadow-2xl animate-fadeInRight"
+            priority
+            style={{
+              filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))',
+            }}
+          />
+          
+          {/* Decorative floating elements */}
+          <div className="absolute top-10 -left-10 w-20 h-20 bg-yellow-500/20 rounded-full blur-xl animate-bounce-slow"></div>
+          <div className="absolute bottom-20 -right-10 w-32 h-32 bg-red-500/20 rounded-full blur-xl animate-bounce-slow" style={{ animationDelay: '1s' }}></div>
+        </div>
       </div>
     </div>
   )
