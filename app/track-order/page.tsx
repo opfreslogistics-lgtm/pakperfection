@@ -57,14 +57,20 @@ export default function TrackOrderPage() {
       const { data: { user } } = await supabase.auth.getUser()
       
       // Try searching by order_number first (e.g., PAK-MI4OYZHD-1SS7CO)
+      console.log('Searching for order:', cleanOrderId)
       let { data, error: fetchError } = await supabase
         .from('orders')
-        .select(`
-          *,
-          items:order_items(*)
-        `)
+        .select('*')
         .eq('order_number', cleanOrderId)
         .maybeSingle()
+      
+      console.log('Order query result:', { data, error: fetchError })
+      
+      // Parse items from JSONB column if needed
+      if (data && data.items) {
+        // Items are stored as JSONB in the orders table
+        data.items = typeof data.items === 'string' ? JSON.parse(data.items) : data.items
+      }
 
       // If not found by order_number, try by UUID id
       if (!data && !fetchError) {
@@ -73,15 +79,17 @@ export default function TrackOrderPage() {
         if (uuidRegex.test(cleanOrderId)) {
           const result = await supabase
             .from('orders')
-            .select(`
-              *,
-              items:order_items(*)
-            `)
+            .select('*')
             .eq('id', cleanOrderId)
             .maybeSingle()
           
           data = result.data
           fetchError = result.error
+          
+          // Parse items from JSONB column if needed
+          if (data && data.items) {
+            data.items = typeof data.items === 'string' ? JSON.parse(data.items) : data.items
+          }
         }
       }
 
@@ -301,18 +309,18 @@ export default function TrackOrderPage() {
                   {order.items?.map((item: any, idx: number) => (
                     <div key={idx} className="flex items-start gap-4 p-4 bg-gray-50 dark:bg-gray-700 rounded-xl border-2 border-gray-200 dark:border-gray-600 hover:border-red-300 dark:hover:border-red-700 transition-all">
                       <div className="w-20 h-20 bg-gradient-to-br from-red-600 to-yellow-500 rounded-lg flex items-center justify-center text-white font-bold text-2xl flex-shrink-0 shadow-lg">
-                        {item.item_name?.charAt(0) || 'P'}
+                        {(item.name || item.item_name)?.charAt(0) || 'P'}
                       </div>
                       <div className="flex-1">
-                        <h4 className="font-bold text-lg text-gray-900 dark:text-white">{item.item_name}</h4>
+                        <h4 className="font-bold text-lg text-gray-900 dark:text-white">{item.name || item.item_name}</h4>
                         <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                           <span className="font-semibold">Quantity:</span> {item.quantity}
                         </p>
-                        {item.modifiers && Object.keys(item.modifiers).length > 0 && (
+                        {item.selectedModifiers && Object.keys(item.selectedModifiers).length > 0 && (
                           <div className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                             <span className="font-semibold">Customizations:</span>
                             <div className="mt-1 space-y-1">
-                              {Object.entries(item.modifiers).map(([key, value]: [string, any]) => (
+                              {Object.entries(item.selectedModifiers).map(([key, value]: [string, any]) => (
                                 <div key={key} className="flex items-start gap-2">
                                   <span className="text-red-600">•</span>
                                   <span>{key}: {typeof value === 'object' ? JSON.stringify(value) : value}</span>
@@ -323,9 +331,9 @@ export default function TrackOrderPage() {
                         )}
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-lg text-red-600">{formatPrice(parseFloat(item.price))}</p>
+                        <p className="font-bold text-lg text-red-600">{formatPrice(parseFloat(item.totalPrice || item.price))}</p>
                         <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                          {formatPrice(parseFloat(item.price) / item.quantity)} each
+                          {formatPrice(parseFloat(item.totalPrice || item.price) / item.quantity)} each
                         </p>
                       </div>
                     </div>
@@ -362,21 +370,27 @@ export default function TrackOrderPage() {
                   <div className="space-y-3">
                     <div className="flex justify-between text-lg">
                       <span className="text-gray-700 dark:text-gray-300">Subtotal:</span>
-                      <span className="font-semibold">{formatPrice(parseFloat(order.subtotal))}</span>
+                      <span className="font-semibold">{formatPrice(parseFloat(order.subtotal || 0))}</span>
                     </div>
-                    {order.delivery_fee > 0 && (
+                    {(order.delivery_fee || 0) > 0 && (
                       <div className="flex justify-between text-lg">
                         <span className="text-gray-700 dark:text-gray-300">Delivery Fee:</span>
-                        <span className="font-semibold">{formatPrice(parseFloat(order.delivery_fee))}</span>
+                        <span className="font-semibold">{formatPrice(parseFloat(order.delivery_fee || 0))}</span>
+                      </div>
+                    )}
+                    {(order.tip_amount || 0) > 0 && (
+                      <div className="flex justify-between text-lg">
+                        <span className="text-gray-700 dark:text-gray-300">Tip:</span>
+                        <span className="font-semibold">{formatPrice(parseFloat(order.tip_amount || 0))}</span>
                       </div>
                     )}
                     <div className="flex justify-between text-lg">
                       <span className="text-gray-700 dark:text-gray-300">Tax:</span>
-                      <span className="font-semibold">{formatPrice(parseFloat(order.tax))}</span>
+                      <span className="font-semibold">{formatPrice(parseFloat(order.tax || 0))}</span>
                     </div>
                     <div className="flex justify-between text-2xl font-bold pt-3 border-t-2 border-gray-200 dark:border-gray-700">
                       <span>Total:</span>
-                      <span className="text-red-600">{formatPrice(parseFloat(order.total))}</span>
+                      <span className="text-red-600">{formatPrice(parseFloat(order.total_amount || order.total || 0))}</span>
                     </div>
                   </div>
                 </div>
