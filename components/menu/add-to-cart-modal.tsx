@@ -26,8 +26,8 @@ export default function AddToCartModal({ item, isOpen, onClose, onAddToCart }: A
   const basePrice = parseFloat(item.price) || 0
   let modifierPrice = 0
   
-  // Calculate modifier prices (with quantities)
-  if (item.modifiers) {
+  // Calculate modifier prices (with quantities) - only if modifiers exist
+  if (item.modifiers && item.modifiers.length > 0) {
     Object.entries(selectedModifiers).forEach(([groupId, options]) => {
       const modifierGroup = item.modifiers.find((m: any) => m.id === groupId)
       if (modifierGroup) {
@@ -41,9 +41,9 @@ export default function AddToCartModal({ item, isOpen, onClose, onAddToCart }: A
     })
   }
 
-  // Calculate upsell prices (with quantities)
+  // Calculate upsell prices (with quantities) - only if upsells exist
   let upsellPrice = 0
-  if (item.upsells) {
+  if (item.upsells && item.upsells.length > 0) {
     item.upsells.forEach((upsell: any) => {
       const qty = selectedUpsells[upsell.id] || 0
       if (qty > 0) {
@@ -56,8 +56,8 @@ export default function AddToCartModal({ item, isOpen, onClose, onAddToCart }: A
   const finalTotal = itemTotal
 
   const handleAddToCart = () => {
-    // Validate required modifiers
-    if (item.modifiers) {
+    // Validate required modifiers (only if modifiers exist and are not empty)
+    if (item.modifiers && item.modifiers.length > 0) {
       const requiredModifiers = item.modifiers.filter((m: any) => m.is_required)
       for (const modifier of requiredModifiers) {
         const selected = selectedModifiers[modifier.id]
@@ -68,11 +68,13 @@ export default function AddToCartModal({ item, isOpen, onClose, onAddToCart }: A
       }
     }
 
-    // Build selected upsells with quantities
-    const upsellsWithQty = item.upsells?.filter((u: any) => selectedUpsells[u.id] > 0).map((u: any) => ({
-      ...u.suggested_item,
-      quantity: selectedUpsells[u.id]
-    })) || []
+    // Build selected upsells with quantities (only if upsells exist)
+    const upsellsWithQty = (item.upsells && item.upsells.length > 0)
+      ? item.upsells.filter((u: any) => selectedUpsells[u.id] > 0).map((u: any) => ({
+          ...u.suggested_item,
+          quantity: selectedUpsells[u.id]
+        }))
+      : []
 
     const cartItem = {
       ...item,
