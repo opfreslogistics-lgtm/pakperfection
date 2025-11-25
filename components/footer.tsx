@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import Link from 'next/link'
 import Image from 'next/image'
 import { Facebook, Instagram, Twitter, Youtube, Linkedin, Phone, Mail, MapPin, Clock, UtensilsCrossed, Heart } from 'lucide-react'
@@ -12,7 +12,7 @@ interface FooterProps {
   theme?: any
 }
 
-export default function Footer({ footer: propFooter, branding: propBranding, theme }: FooterProps) {
+function Footer({ footer: propFooter, branding: propBranding, theme }: FooterProps) {
   const [footer, setFooter] = useState<any>(propFooter || null)
   const supabase = createClient()
 
@@ -20,16 +20,11 @@ export default function Footer({ footer: propFooter, branding: propBranding, the
   const footerLogoUrl = 'https://opanykhlbusuwmnbswkb.supabase.co/storage/v1/object/public/branding/PAK-LOGO-2-scaled.png'
 
   useEffect(() => {
-    // Load footer from database (always get latest)
-    loadFooter()
-    
-    // Reload periodically to catch updates (every 10 seconds for faster updates)
-    const interval = setInterval(() => {
+    // Only load footer if not provided as prop
+    if (!propFooter) {
       loadFooter()
-    }, 10000) // Every 10 seconds
-
-    return () => clearInterval(interval)
-  }, [])
+    }
+  }, [propFooter])
 
   const loadFooter = async () => {
     try {
@@ -276,3 +271,4 @@ export default function Footer({ footer: propFooter, branding: propBranding, the
   )
 }
 
+export default memo(Footer)

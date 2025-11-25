@@ -1,18 +1,25 @@
 import { createClient } from '@/lib/supabase/server'
 import Navigation from '@/components/navigation-new'
 import Footer from '@/components/footer'
-import HeroSlider from '@/components/home/hero-slider'
-import FeaturedDishes from '@/components/home/featured-dishes'
-import FeaturedEvents from '@/components/home/featured-events'
-import AboutPreview from '@/components/home/about-preview'
-import CuisineShowcase from '@/components/home/cuisine-showcase'
-import GalleryPreview from '@/components/home/gallery-preview'
-import Testimonials from '@/components/home/testimonials'
-import LocationSection from '@/components/home/location-section'
-import NewsletterSignup from '@/components/home/newsletter-signup'
-import CTA from '@/components/home/cta'
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
 
-export const revalidate = 0 // Disable caching for this page
+// Lazy load components that are below the fold
+const FeaturedDishes = dynamic(() => import('@/components/home/featured-dishes'), { ssr: true })
+const FeaturedEvents = dynamic(() => import('@/components/home/featured-events'), { ssr: true })
+const AboutPreview = dynamic(() => import('@/components/home/about-preview'), { ssr: true })
+const CuisineShowcase = dynamic(() => import('@/components/home/cuisine-showcase'), { ssr: true })
+const GalleryPreview = dynamic(() => import('@/components/home/gallery-preview'), { ssr: true })
+const Testimonials = dynamic(() => import('@/components/home/testimonials'), { ssr: true })
+const LocationSection = dynamic(() => import('@/components/home/location-section'), { ssr: true })
+const NewsletterSignup = dynamic(() => import('@/components/home/newsletter-signup'), { ssr: true })
+const CTA = dynamic(() => import('@/components/home/cta'), { ssr: true })
+
+// Load hero immediately (above the fold)
+import HeroSlider from '@/components/home/hero-slider'
+
+// Enable caching - revalidate every 5 minutes
+export const revalidate = 300
 
 export default async function HomePage() {
   const supabase = await createClient()
@@ -86,15 +93,33 @@ export default async function HomePage() {
       <Navigation branding={branding} navSettings={navSettings} theme={theme} />
       <main>
         <HeroSlider />
-        <FeaturedDishes />
-        <FeaturedEvents />
-        <AboutPreview />
-        <CuisineShowcase />
-        <GalleryPreview />
-        <Testimonials />
-        <LocationSection />
-        <NewsletterSignup />
-        <CTA />
+        <Suspense fallback={<div className="h-96" />}>
+          <FeaturedDishes />
+        </Suspense>
+        <Suspense fallback={<div className="h-96" />}>
+          <FeaturedEvents />
+        </Suspense>
+        <Suspense fallback={<div className="h-96" />}>
+          <AboutPreview />
+        </Suspense>
+        <Suspense fallback={<div className="h-96" />}>
+          <CuisineShowcase />
+        </Suspense>
+        <Suspense fallback={<div className="h-96" />}>
+          <GalleryPreview />
+        </Suspense>
+        <Suspense fallback={<div className="h-96" />}>
+          <Testimonials />
+        </Suspense>
+        <Suspense fallback={<div className="h-96" />}>
+          <LocationSection />
+        </Suspense>
+        <Suspense fallback={<div className="h-96" />}>
+          <NewsletterSignup />
+        </Suspense>
+        <Suspense fallback={<div className="h-96" />}>
+          <CTA />
+        </Suspense>
       </main>
       <Footer footer={footer} branding={branding} theme={theme} />
     </div>

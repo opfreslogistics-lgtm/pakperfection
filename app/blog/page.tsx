@@ -6,7 +6,8 @@ import Link from 'next/link'
 import { Calendar, User, ArrowRight, Search, Tag, TrendingUp, Clock, BookOpen } from 'lucide-react'
 import BlogClient from './blog-client'
 
-export const dynamic = 'force-dynamic'
+// Enable caching - revalidate every 5 minutes for fresh blog content
+export const revalidate = 300
 
 export default async function BlogPage() {
   const supabase = await createClient()

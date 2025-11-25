@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Navigation from '@/components/navigation-new'
 import Footer from '@/components/footer'
@@ -17,20 +17,21 @@ export default function MenuPage() {
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
   const [viewMode, setViewMode] = useState<'grid' | 'list' | 'carousel'>('grid')
-  const [featuredItems, setFeaturedItems] = useState<any[]>([])
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [showCartModal, setShowCartModal] = useState(false)
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>([])
   const [selectedTags, setSelectedTags] = useState<string[]>([])
   const [showFilters, setShowFilters] = useState(false)
-  const supabase = createClient()
+  const [loading, setLoading] = useState(true)
+  const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
     loadMenuData()
   }, [])
 
-  const loadMenuData = async () => {
+  const loadMenuData = useCallback(async () => {
     try {
+      setLoading(true)
       const [categoriesRes, itemsRes] = await Promise.all([
         supabase.from('menu_categories').select('*').order('order_index'),
         supabase.from('menu_items')
@@ -49,36 +50,27 @@ export default function MenuPage() {
           .order('order_index'),
       ])
 
-      if (categoriesRes.error) {
-        console.error('Error loading categories:', categoriesRes.error)
-        toast.error('Failed to load categories')
-      } else if (categoriesRes.data) {
+      if (categoriesRes.data) {
         setCategories(categoriesRes.data || [])
       }
 
-      if (itemsRes.error) {
-        console.error('Error loading menu items:', itemsRes.error)
-        toast.error('Failed to load menu items: ' + itemsRes.error.message)
-        setMenuItems([])
-        setFeaturedItems([])
-      } else {
-        const items = itemsRes.data || []
-        console.log('Loaded menu items for frontend:', items.length)
-        setMenuItems(items)
-        setFeaturedItems(items.filter((item: any) => item.featured).slice(0, 6))
+      if (itemsRes.data) {
+        setMenuItems(itemsRes.data || [])
       }
     } catch (error: any) {
       console.error('Error in loadMenuData:', error)
-      toast.error('Failed to load menu: ' + error.message)
+      toast.error('Failed to load menu')
+    } finally {
+      setLoading(false)
     }
-  }
+  }, [supabase])
 
-  const handleAddToCartClick = (item: any) => {
+  const handleAddToCartClick = useCallback((item: any) => {
     setSelectedItem(item)
     setShowCartModal(true)
-  }
+  }, [])
 
-  const addToCart = (cartItem: any) => {
+  const addToCart = useCallback((cartItem: any) => {
     const cart = JSON.parse(localStorage.getItem('cart') || '[]')
     
     // Create a unique key for this cart item based on item ID and selected modifiers
@@ -97,39 +89,68 @@ export default function MenuPage() {
     
     localStorage.setItem('cart', JSON.stringify(cart))
     toast.success(`${cartItem.quantity} ${cartItem.quantity === 1 ? 'item' : 'items'} added to cart!`)
+  }, [])
+
+  // Memoize expensive filtering operations
+  const featuredItems = useMemo(() => 
+    menuItems.filter((item: any) => item.featured).slice(0, 6)
+  , [menuItems])
+
+  const filteredItems = useMemo(() => {
+    return menuItems.filter((item) => {
+      const matchesCategory = !selectedCategory || item.category_id === selectedCategory
+      const matchesSearch = !searchQuery || 
+        item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description?.toLowerCase().includes(searchQuery.toLowerCase())
+      
+      // Filter by allergens (exclude items with selected allergens)
+      if (selectedAllergens.length > 0) {
+        const itemAllergens = item.allergen_flags || []
+        if (selectedAllergens.some(allergen => itemAllergens.includes(allergen))) {
+          return false
+        }
+      }
+
+      // Filter by tags (include only items with selected tags)
+      if (selectedTags.length > 0) {
+        const itemTags = item.tags || []
+        if (!selectedTags.some(tag => itemTags.includes(tag))) {
+          return false
+        }
+      }
+
+      return matchesCategory && matchesSearch
+    })
+  }, [menuItems, selectedCategory, searchQuery, selectedAllergens, selectedTags])
+
+  const filteredCategories = useMemo(() => {
+    return categories.filter((cat) => {
+      if (!selectedCategory && !searchQuery) return true
+      return menuItems.some((item) => item.category_id === cat.id && 
+        (!searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase())))
+    })
+  }, [categories, selectedCategory, searchQuery, menuItems])
+
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">
+        <Navigation branding={null} navSettings={null} theme={null} />
+        <div className="bg-gradient-to-r from-red-600 to-yellow-500 text-white py-20 px-4">
+          <div className="container mx-auto text-center">
+            <h1 className="text-5xl font-bold mb-4">Our Menu</h1>
+            <p className="text-xl opacity-90">Discover our delicious selection of authentic dishes</p>
+          </div>
+        </div>
+        <div className="container mx-auto px-4 py-12">
+          <div className="flex items-center justify-center h-96">
+            <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-red-600"></div>
+          </div>
+        </div>
+        <Footer footer={null} branding={null} theme={null} />
+      </div>
+    )
   }
-
-  const filteredItems = menuItems.filter((item) => {
-    const matchesCategory = !selectedCategory || item.category_id === selectedCategory
-    const matchesSearch = !searchQuery || 
-      item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      item.description?.toLowerCase().includes(searchQuery.toLowerCase())
-    
-    // Filter by allergens (exclude items with selected allergens)
-    if (selectedAllergens.length > 0) {
-      const itemAllergens = item.allergen_flags || []
-      if (selectedAllergens.some(allergen => itemAllergens.includes(allergen))) {
-        return false
-      }
-    }
-
-    // Filter by tags (include only items with selected tags)
-    if (selectedTags.length > 0) {
-      const itemTags = item.tags || []
-      if (!selectedTags.some(tag => itemTags.includes(tag))) {
-        return false
-      }
-    }
-
-    return matchesCategory && matchesSearch
-  })
-
-  const filteredCategories = categories.filter((cat) => {
-    if (!selectedCategory && !searchQuery) return true
-    return menuItems.some((item) => item.category_id === cat.id && 
-      (!searchQuery || item.name.toLowerCase().includes(searchQuery.toLowerCase())))
-  })
-
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800">

@@ -4,7 +4,8 @@ import Footer from '@/components/footer'
 import { Calendar } from 'lucide-react'
 import EventsClient from './events-client'
 
-export const dynamic = 'force-dynamic'
+// Enable caching - revalidate every 5 minutes for fresh events
+export const revalidate = 300
 
 export default async function EventsPage() {
   const supabase = await createClient()

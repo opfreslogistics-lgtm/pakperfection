@@ -15,6 +15,18 @@ const nextConfig = {
         hostname: '**.unsplash.com',
       },
     ],
+    formats: ['image/avif', 'image/webp'],
+    minimumCacheTTL: 60,
+  },
+  // Optimize compilation and build
+  swcMinify: true,
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
+  },
+  // Performance optimizations
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['lucide-react', 'react-hot-toast'],
   },
   // Ensure nodemailer works properly in server-side API routes
   webpack: (config, { isServer }) => {
