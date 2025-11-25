@@ -8,10 +8,12 @@ import { createClient } from '@/lib/supabase/client'
 export default function HeroSlider() {
   const [currentSlide, setCurrentSlide] = useState(0)
   const [slides, setSlides] = useState<Array<{ image: string; title: string; subtitle: string; cta: string }>>([])
+  const [ownerImage, setOwnerImage] = useState<string | null>(null)
   const supabase = createClient()
 
   useEffect(() => {
     loadSlides()
+    loadOwnerImage()
   }, [])
 
   const loadSlides = async () => {
@@ -53,6 +55,17 @@ export default function HeroSlider() {
       setSlides(savedSlides)
     } else {
       setSlides(defaultSlides)
+    }
+  }
+
+  const loadOwnerImage = async () => {
+    const { data } = await supabase
+      .from('branding')
+      .select('hero_owner_image')
+      .maybeSingle()
+    
+    if (data?.hero_owner_image) {
+      setOwnerImage(data.hero_owner_image)
     }
   }
 
@@ -177,29 +190,31 @@ export default function HeroSlider() {
       </div>
 
       {/* Fixed Owner Image - Bottom Right with Animations */}
-      <div className="absolute bottom-0 right-0 w-64 md:w-96 lg:w-[500px] h-auto pointer-events-none z-10">
-        <div className="relative w-full h-full animate-float">
-          {/* Glow effect behind the image */}
-          <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/30 via-red-500/20 to-transparent blur-3xl animate-pulse-slow"></div>
-          
-          {/* Owner transparent image - Replace this URL with your image */}
-          <Image
-            src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?w=500&h=600&fit=crop&crop=faces"
-            alt="Chef Owner"
-            width={500}
-            height={600}
-            className="relative z-10 object-contain drop-shadow-2xl animate-fadeInRight"
-            priority
-            style={{
-              filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))',
-            }}
-          />
-          
-          {/* Decorative floating elements */}
-          <div className="absolute top-10 -left-10 w-20 h-20 bg-yellow-500/20 rounded-full blur-xl animate-bounce-slow"></div>
-          <div className="absolute bottom-20 -right-10 w-32 h-32 bg-red-500/20 rounded-full blur-xl animate-bounce-slow" style={{ animationDelay: '1s' }}></div>
+      {ownerImage && (
+        <div className="absolute bottom-0 right-0 w-64 md:w-96 lg:w-[500px] h-auto pointer-events-none z-10">
+          <div className="relative w-full h-full animate-float">
+            {/* Glow effect behind the image */}
+            <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/30 via-red-500/20 to-transparent blur-3xl animate-pulse-slow"></div>
+            
+            {/* Owner transparent image from admin settings */}
+            <Image
+              src={ownerImage}
+              alt="Restaurant Owner"
+              width={500}
+              height={600}
+              className="relative z-10 object-contain drop-shadow-2xl animate-fadeInRight"
+              priority
+              style={{
+                filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))',
+              }}
+            />
+            
+            {/* Decorative floating elements */}
+            <div className="absolute top-10 -left-10 w-20 h-20 bg-yellow-500/20 rounded-full blur-xl animate-bounce-slow"></div>
+            <div className="absolute bottom-20 -right-10 w-32 h-32 bg-red-500/20 rounded-full blur-xl animate-bounce-slow" style={{ animationDelay: '1s' }}></div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

@@ -21,7 +21,8 @@ function BrandingContent() {
     dark_logo_url: null,
     favicon_url: null,
     footer_logo_url: null,
-    loading_logo_url: null
+    loading_logo_url: null,
+    hero_owner_image: null
   })
   const [loading, setLoading] = useState(true)
   const [uploading, setUploading] = useState<string | null>(null)
@@ -56,6 +57,7 @@ function BrandingContent() {
           favicon_url: data.favicon_url || null,
           footer_logo_url: data.footer_logo_url || null,
           loading_logo_url: data.loading_logo_url || null,
+          hero_owner_image: data.hero_owner_image || null,
           created_at: data.created_at,
           updated_at: data.updated_at,
         })
@@ -66,7 +68,8 @@ function BrandingContent() {
           dark_logo_url: null,
           favicon_url: null,
           footer_logo_url: null,
-          loading_logo_url: null
+          loading_logo_url: null,
+          hero_owner_image: null
         })
       }
     } catch (error) {
@@ -278,6 +281,12 @@ function BrandingContent() {
       label: 'Footer Logo',
       description: 'Logo displayed in the footer. Recommended: PNG with transparent background, max 120px height.',
       preview: branding?.footer_logo_url
+    },
+    {
+      key: 'hero_owner_image',
+      label: 'Hero Slider Owner Image ⭐',
+      description: 'Transparent PNG image of owner/chef displayed on homepage hero slider (bottom right). Recommended: PNG with transparent background, 500x600px portrait orientation.',
+      preview: branding?.hero_owner_image
     },
     {
       key: 'favicon_url',
