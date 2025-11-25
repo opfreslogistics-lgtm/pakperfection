@@ -4,6 +4,8 @@ import Footer from '@/components/footer'
 import { Utensils, Users, Truck, Calendar, Gift, Coffee } from 'lucide-react'
 import Image from 'next/image'
 
+export const dynamic = 'force-dynamic'
+
 export default async function ServicesPage() {
   const supabase = await createClient()
   

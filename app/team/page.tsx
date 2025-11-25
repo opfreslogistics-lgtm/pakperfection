@@ -4,6 +4,8 @@ import Footer from '@/components/footer'
 import Image from 'next/image'
 import { ChefHat, Award, Heart, Users } from 'lucide-react'
 
+export const dynamic = 'force-dynamic'
+
 export default async function TeamPage() {
   const supabase = await createClient()
   

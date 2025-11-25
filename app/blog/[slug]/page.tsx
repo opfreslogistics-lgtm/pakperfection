@@ -7,6 +7,8 @@ import { Calendar, User, ArrowLeft, Tag, Clock } from 'lucide-react'
 import { notFound } from 'next/navigation'
 import ShareButtons from './share-buttons'
 
+export const dynamic = 'force-dynamic'
+
 export async function generateMetadata({ params }: { params: { slug: string } }) {
   const supabase = await createClient()
   

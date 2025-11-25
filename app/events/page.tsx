@@ -4,6 +4,8 @@ import Footer from '@/components/footer'
 import { Calendar } from 'lucide-react'
 import EventsClient from './events-client'
 
+export const dynamic = 'force-dynamic'
+
 export default async function EventsPage() {
   const supabase = await createClient()
   
