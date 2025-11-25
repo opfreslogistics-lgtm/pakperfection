@@ -11,6 +11,7 @@ import Image from 'next/image'
 import { Loader2, Check, ArrowRight, ArrowLeft, MapPin, Clock, Users, Package, CreditCard, Receipt } from 'lucide-react'
 import AddressAutocomplete from '@/components/checkout/address-autocomplete'
 import AuthPrompt from '@/components/checkout/auth-prompt'
+import { getStripe } from '@/lib/stripe/client'
 
 export default function CheckoutPage() {
   const [cart, setCart] = useState<any[]>([])
@@ -357,6 +358,12 @@ export default function CheckoutPage() {
 
       if (error) throw error
 
+      // Handle Stripe payment differently
+      if (selectedPayment === 'stripe') {
+        await handleStripeCheckout()
+        return
+      }
+
       // Clear cart
       localStorage.removeItem('cart')
 
@@ -369,6 +376,74 @@ export default function CheckoutPage() {
     } catch (error: any) {
       toast.error(error.message || 'Failed to place order')
     } finally {
+      setLoading(false)
+    }
+  }
+
+  const handleStripeCheckout = async () => {
+    try {
+      const subtotal = calculateSubtotal
+      const tax = subtotal * 0.08
+      const deliveryFee = deliveryType === 'delivery' ? 5.00 : 0
+      const tip = calculatedTip
+      const total = subtotal + tax + deliveryFee + tip
+
+      // Prepare order data for Stripe
+      const orderData = {
+        items: cart.map(item => ({
+          name: item.name,
+          description: item.description || '',
+          price: item.totalPrice ? (item.totalPrice / item.quantity).toFixed(2) : item.price,
+          quantity: item.quantity,
+          image_url: item.image_url || item.image,
+        })),
+        subtotal: subtotal.toFixed(2),
+        tax: tax.toFixed(2),
+        delivery_fee: deliveryFee.toFixed(2),
+        tip: tip.toFixed(2),
+        total: total.toFixed(2),
+        customer_name: formData.name,
+        email: formData.email,
+        phone: formData.phone,
+        order_type: deliveryType,
+        delivery_address: deliveryType === 'delivery' 
+          ? `${formData.address}, ${formData.city}, ${formData.state} ${formData.zip}` 
+          : '',
+        special_instructions: formData.specialInstructions || '',
+      }
+
+      // Create Stripe checkout session
+      const response = await fetch('/api/stripe/create-checkout-session', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          orderData,
+          successUrl: `${window.location.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+          cancelUrl: `${window.location.origin}/checkout/cancel`,
+        }),
+      })
+
+      const { sessionId, url, error } = await response.json()
+
+      if (error) {
+        throw new Error(error)
+      }
+
+      // Clear cart before redirecting to Stripe
+      localStorage.removeItem('cart')
+
+      // Redirect to Stripe Checkout
+      if (url) {
+        window.location.href = url
+      } else {
+        const stripe = await getStripe()
+        await stripe?.redirectToCheckout({ sessionId })
+      }
+    } catch (error: any) {
+      console.error('Stripe checkout error:', error)
+      toast.error(error.message || 'Failed to initiate payment')
       setLoading(false)
     }
   }
