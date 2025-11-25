@@ -79,12 +79,12 @@ export default function AdminSidebar({ isOpen, onClose }: AdminSidebarProps) {
       {/* Sidebar */}
       <aside
         className={`
-          fixed lg:sticky top-0 left-0 z-50 h-screen w-64 
+          fixed lg:relative top-0 left-0 z-50 h-screen w-64 
           bg-white dark:bg-gray-800 
           border-r border-gray-200 dark:border-gray-700 
           transform transition-transform duration-300 ease-in-out
           ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
-          overflow-y-auto
+          overflow-y-auto lg:overflow-visible
         `}
       >
         <div className="p-6">
