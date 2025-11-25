@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
-import { X, Plus, Minus, Star, Info } from 'lucide-react'
+import { X, Plus, Minus, Star, Info, TrendingDown } from 'lucide-react'
 import { formatPrice } from '@/lib/utils'
 import toast from 'react-hot-toast'
 
@@ -22,8 +22,10 @@ export default function AddToCartModal({ item, isOpen, onClose, onAddToCart }: A
 
   if (!isOpen || !item) return null
 
-  // Calculate total price
-  const basePrice = parseFloat(item.price) || 0
+  // Calculate total price (use promo price if active)
+  const basePrice = (item.promo_active && item.promo_price && parseFloat(item.promo_price) < parseFloat(item.price))
+    ? parseFloat(item.promo_price)
+    : parseFloat(item.price) || 0
   let modifierPrice = 0
   
   // Calculate modifier prices (with quantities) - only if modifiers exist
@@ -105,12 +107,20 @@ export default function AddToCartModal({ item, isOpen, onClose, onAddToCart }: A
             {item.short_description && (
               <p className="text-lg opacity-90 mb-1">{item.short_description}</p>
             )}
-            {item.featured && (
-              <span className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-bold mt-2">
-                <Star size={14} className="fill-current" />
-                Featured
-              </span>
-            )}
+            <div className="flex items-center gap-2 mt-2">
+              {item.featured && (
+                <span className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-bold">
+                  <Star size={14} className="fill-current" />
+                  Featured
+                </span>
+              )}
+              {item.promo_active && item.promo_price && parseFloat(item.promo_price) < parseFloat(item.price) && (
+                <span className="inline-flex items-center gap-1 bg-white/20 backdrop-blur-sm text-white px-3 py-1 rounded-full text-sm font-bold">
+                  <TrendingDown size={14} />
+                  ON SALE - Save {formatPrice(parseFloat(item.price) - parseFloat(item.promo_price))}
+                </span>
+              )}
+            </div>
           </div>
           <button
             onClick={onClose}

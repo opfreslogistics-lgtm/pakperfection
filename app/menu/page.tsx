@@ -5,7 +5,7 @@ import { createClient } from '@/lib/supabase/client'
 import Navigation from '@/components/navigation-new'
 import Footer from '@/components/footer'
 import Image from 'next/image'
-import { Plus, Search, Filter, Grid, List, ChevronLeft, ChevronRight, Star, Clock } from 'lucide-react'
+import { Plus, Search, Filter, Grid, List, ChevronLeft, ChevronRight, Star, Clock, AlertTriangle, Tag, TrendingDown } from 'lucide-react'
 import toast from 'react-hot-toast'
 import { formatPrice } from '@/lib/utils'
 import Link from 'next/link'
@@ -20,6 +20,9 @@ export default function MenuPage() {
   const [featuredItems, setFeaturedItems] = useState<any[]>([])
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [showCartModal, setShowCartModal] = useState(false)
+  const [selectedAllergens, setSelectedAllergens] = useState<string[]>([])
+  const [selectedTags, setSelectedTags] = useState<string[]>([])
+  const [showFilters, setShowFilters] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -101,6 +104,23 @@ export default function MenuPage() {
     const matchesSearch = !searchQuery || 
       item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       item.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    
+    // Filter by allergens (exclude items with selected allergens)
+    if (selectedAllergens.length > 0) {
+      const itemAllergens = item.allergen_flags || []
+      if (selectedAllergens.some(allergen => itemAllergens.includes(allergen))) {
+        return false
+      }
+    }
+
+    // Filter by tags (include only items with selected tags)
+    if (selectedTags.length > 0) {
+      const itemTags = item.tags || []
+      if (!selectedTags.some(tag => itemTags.includes(tag))) {
+        return false
+      }
+    }
+
     return matchesCategory && matchesSearch
   })
 
@@ -250,7 +270,16 @@ export default function MenuPage() {
                         </div>
                         <div className="text-center">
                           <h3 className="font-bold text-sm mb-1 group-hover:text-red-600 transition-colors">{item.name}</h3>
-                          <p className="text-red-600 font-bold text-sm">{formatPrice(parseFloat(item.price))}</p>
+                          <div className="flex items-center justify-center gap-1">
+                            {item.promo_active && item.promo_price && parseFloat(item.promo_price) < parseFloat(item.price) ? (
+                              <>
+                                <p className="text-red-600 font-bold text-sm">{formatPrice(parseFloat(item.promo_price))}</p>
+                                <p className="text-gray-400 text-xs line-through">{formatPrice(parseFloat(item.price))}</p>
+                              </>
+                            ) : (
+                              <p className="text-red-600 font-bold text-sm">{formatPrice(parseFloat(item.price))}</p>
+                            )}
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -261,6 +290,99 @@ export default function MenuPage() {
 
             {/* Menu Items */}
             <div>
+              {/* Filter Panel */}
+              <div className="mb-8">
+                <button
+                  onClick={() => setShowFilters(!showFilters)}
+                  className="flex items-center gap-2 bg-white dark:bg-gray-800 px-6 py-3 rounded-xl shadow-lg font-semibold mb-4 hover:shadow-xl transition-shadow"
+                >
+                  <Filter size={20} />
+                  Advanced Filters {(selectedAllergens.length + selectedTags.length) > 0 && `(${selectedAllergens.length + selectedTags.length})`}
+                </button>
+
+                {showFilters && (
+                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-xl p-6 space-y-6 mb-6">
+                    {/* Allergen Filters */}
+                    <div>
+                      <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                        <AlertTriangle size={20} className="text-red-600" />
+                        Exclude Allergens
+                      </h3>
+                      <div className="flex flex-wrap gap-2">
+                        {['Dairy', 'Nuts', 'Gluten', 'Soy', 'Eggs', 'Shellfish', 'Fish', 'Wheat'].map((allergen) => {
+                          const isSelected = selectedAllergens.includes(allergen)
+                          return (
+                            <button
+                              key={allergen}
+                              onClick={() => {
+                                setSelectedAllergens(prev =>
+                                  isSelected
+                                    ? prev.filter(a => a !== allergen)
+                                    : [...prev, allergen]
+                                )
+                              }}
+                              className={`px-4 py-2 rounded-full border-2 transition-all font-semibold ${
+                                isSelected
+                                  ? 'border-red-600 bg-red-600 text-white shadow-lg'
+                                  : 'border-gray-300 dark:border-gray-600 hover:border-red-300'
+                              }`}
+                            >
+                              {allergen}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    {/* Tag Filters */}
+                    {Array.from(new Set(menuItems.flatMap(item => item.tags || []))).length > 0 && (
+                      <div>
+                        <h3 className="font-bold text-lg mb-3 flex items-center gap-2">
+                          <Tag size={20} className="text-blue-600" />
+                          Filter by Tags
+                        </h3>
+                        <div className="flex flex-wrap gap-2">
+                          {Array.from(new Set(menuItems.flatMap(item => item.tags || []))).map((tag: any) => {
+                            const isSelected = selectedTags.includes(tag)
+                            return (
+                              <button
+                                key={tag}
+                                onClick={() => {
+                                  setSelectedTags(prev =>
+                                    isSelected
+                                      ? prev.filter(t => t !== tag)
+                                      : [...prev, tag]
+                                  )
+                                }}
+                                className={`px-4 py-2 rounded-full border-2 transition-all font-semibold ${
+                                  isSelected
+                                    ? 'border-blue-600 bg-blue-600 text-white shadow-lg'
+                                    : 'border-gray-300 dark:border-gray-600 hover:border-blue-300'
+                                }`}
+                              >
+                                #{tag}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )}
+
+                    {(selectedAllergens.length > 0 || selectedTags.length > 0) && (
+                      <button
+                        onClick={() => {
+                          setSelectedAllergens([])
+                          setSelectedTags([])
+                        }}
+                        className="text-sm text-red-600 hover:text-red-700 font-semibold flex items-center gap-2"
+                      >
+                        Clear all filters
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="flex justify-between items-center mb-6">
                 <h2 className="text-3xl font-bold">
                   {selectedCategory 
@@ -303,8 +425,25 @@ export default function MenuPage() {
                       <div className="p-5">
                         <div className="flex justify-between items-start mb-2">
                           <h3 className="font-bold text-xl">{item.name}</h3>
-                          <span className="text-2xl font-bold text-red-600">{formatPrice(parseFloat(item.price))}</span>
+                          <div className="flex items-center gap-2">
+                            {item.promo_active && item.promo_price && parseFloat(item.promo_price) < parseFloat(item.price) ? (
+                              <>
+                                <span className="text-2xl font-bold text-red-600">{formatPrice(parseFloat(item.promo_price))}</span>
+                                <span className="text-sm text-gray-400 line-through">{formatPrice(parseFloat(item.price))}</span>
+                              </>
+                            ) : (
+                              <span className="text-2xl font-bold text-red-600">{formatPrice(parseFloat(item.price))}</span>
+                            )}
+                          </div>
                         </div>
+                        {item.promo_active && item.promo_price && parseFloat(item.promo_price) < parseFloat(item.price) && (
+                          <div className="mb-2">
+                            <span className="text-xs bg-red-600 text-white px-2 py-1 rounded-full font-bold flex items-center gap-1 w-fit">
+                              <TrendingDown size={12} />
+                              SALE - Save {formatPrice(parseFloat(item.price) - parseFloat(item.promo_price))}
+                            </span>
+                          </div>
+                        )}
                         <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{item.description}</p>
                         {item.dietary_labels && item.dietary_labels.length > 0 && (
                           <div className="flex flex-wrap gap-2 mb-3">
@@ -348,14 +487,31 @@ export default function MenuPage() {
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <h3 className="font-bold text-xl mb-1">{item.name}</h3>
-                            {item.featured && (
-                              <span className="inline-flex items-center gap-1 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold">
-                                <Star size={12} className="fill-current" />
-                                Featured
-                              </span>
+                            <div className="flex items-center gap-2">
+                              {item.featured && (
+                                <span className="inline-flex items-center gap-1 bg-yellow-500 text-white px-2 py-1 rounded text-xs font-bold">
+                                  <Star size={12} className="fill-current" />
+                                  Featured
+                                </span>
+                              )}
+                              {item.promo_active && item.promo_price && parseFloat(item.promo_price) < parseFloat(item.price) && (
+                                <span className="inline-flex items-center gap-1 bg-red-600 text-white px-2 py-1 rounded text-xs font-bold">
+                                  <TrendingDown size={12} />
+                                  SALE
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-end">
+                            {item.promo_active && item.promo_price && parseFloat(item.promo_price) < parseFloat(item.price) ? (
+                              <>
+                                <span className="text-2xl font-bold text-red-600">{formatPrice(parseFloat(item.promo_price))}</span>
+                                <span className="text-sm text-gray-400 line-through">{formatPrice(parseFloat(item.price))}</span>
+                              </>
+                            ) : (
+                              <span className="text-2xl font-bold text-red-600">{formatPrice(parseFloat(item.price))}</span>
                             )}
                           </div>
-                          <span className="text-2xl font-bold text-red-600">{formatPrice(parseFloat(item.price))}</span>
                         </div>
                         <p className="text-gray-600 dark:text-gray-400 mb-3">{item.description}</p>
                         {item.dietary_labels && item.dietary_labels.length > 0 && (
@@ -445,11 +601,20 @@ function MenuCarousel({ items, onAddToCartClick }: { items: any[], onAddToCartCl
                     fill
                     className="object-cover group-hover:scale-110 transition-transform duration-300"
                   />
-                  {item.featured && (
-                    <div className="absolute top-3 right-3 bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold">
-                      Featured
-                    </div>
-                  )}
+                        <div className="absolute top-3 right-3 flex flex-col gap-2">
+                          {item.featured && (
+                            <div className="bg-yellow-500 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                              <Star size={12} className="fill-current" />
+                              Featured
+                            </div>
+                          )}
+                          {item.promo_active && item.promo_price && parseFloat(item.promo_price) < parseFloat(item.price) && (
+                            <div className="bg-red-600 text-white px-3 py-1 rounded-full text-xs font-bold flex items-center gap-1">
+                              <TrendingDown size={12} />
+                              SALE
+                            </div>
+                          )}
+                        </div>
                     <button
                       onClick={() => onAddToCartClick(item)}
                       className="absolute bottom-3 right-3 bg-red-600 text-white p-3 rounded-full shadow-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-700"
@@ -461,7 +626,16 @@ function MenuCarousel({ items, onAddToCartClick }: { items: any[], onAddToCartCl
                   <h3 className="font-bold text-lg mb-1">{item.name}</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mb-3 line-clamp-2">{item.description}</p>
                   <div className="flex justify-between items-center">
-                    <span className="text-xl font-bold text-red-600">{formatPrice(parseFloat(item.price))}</span>
+                    <div className="flex items-center gap-2">
+                      {item.promo_active && item.promo_price && parseFloat(item.promo_price) < parseFloat(item.price) ? (
+                        <div className="flex flex-col">
+                          <span className="text-xl font-bold text-red-600">{formatPrice(parseFloat(item.promo_price))}</span>
+                          <span className="text-xs text-gray-400 line-through">{formatPrice(parseFloat(item.price))}</span>
+                        </div>
+                      ) : (
+                        <span className="text-xl font-bold text-red-600">{formatPrice(parseFloat(item.price))}</span>
+                      )}
+                    </div>
                     <button
                       onClick={() => onAddToCartClick(item)}
                       className="bg-red-600 text-white p-2 rounded-lg hover:bg-red-700 transition-colors"
