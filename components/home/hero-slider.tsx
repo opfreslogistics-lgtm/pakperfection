@@ -59,13 +59,23 @@ export default function HeroSlider() {
   }
 
   const loadOwnerImage = async () => {
-    const { data } = await supabase
-      .from('branding')
-      .select('hero_owner_image')
-      .maybeSingle()
-    
-    if (data?.hero_owner_image) {
-      setOwnerImage(data.hero_owner_image)
+    try {
+      const { data, error } = await supabase
+        .from('branding')
+        .select('hero_owner_image')
+        .maybeSingle()
+      
+      console.log('Hero owner image data:', data)
+      console.log('Hero owner image error:', error)
+      
+      if (data?.hero_owner_image) {
+        console.log('Setting owner image:', data.hero_owner_image)
+        setOwnerImage(data.hero_owner_image)
+      } else {
+        console.log('No hero_owner_image found in branding table')
+      }
+    } catch (err) {
+      console.error('Error loading owner image:', err)
     }
   }
 
@@ -191,7 +201,7 @@ export default function HeroSlider() {
 
       {/* Fixed Owner Image - Bottom Right with Animations */}
       {ownerImage && (
-        <div className="absolute bottom-0 right-0 w-64 md:w-96 lg:w-[500px] h-auto pointer-events-none z-10">
+        <div className="absolute bottom-0 right-0 w-64 md:w-96 lg:w-[500px] h-auto pointer-events-none z-20">
           <div className="relative w-full h-full animate-float">
             {/* Glow effect behind the image */}
             <div className="absolute inset-0 bg-gradient-to-t from-yellow-500/30 via-red-500/20 to-transparent blur-3xl animate-pulse-slow"></div>
@@ -204,6 +214,7 @@ export default function HeroSlider() {
               height={600}
               className="relative z-10 object-contain drop-shadow-2xl animate-fadeInRight"
               priority
+              unoptimized
               style={{
                 filter: 'drop-shadow(0 20px 40px rgba(0,0,0,0.5))',
               }}
@@ -213,6 +224,13 @@ export default function HeroSlider() {
             <div className="absolute top-10 -left-10 w-20 h-20 bg-yellow-500/20 rounded-full blur-xl animate-bounce-slow"></div>
             <div className="absolute bottom-20 -right-10 w-32 h-32 bg-red-500/20 rounded-full blur-xl animate-bounce-slow" style={{ animationDelay: '1s' }}></div>
           </div>
+        </div>
+      )}
+      
+      {/* Debug: Show if owner image is loaded */}
+      {process.env.NODE_ENV === 'development' && (
+        <div className="absolute top-4 left-4 bg-black/70 text-white p-2 rounded text-xs z-30">
+          Owner Image: {ownerImage ? '✅ Loaded' : '❌ Not Set'}
         </div>
       )}
     </div>
