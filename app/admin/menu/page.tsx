@@ -17,16 +17,35 @@ export default function MenuManagementPage() {
   const [editingCategory, setEditingCategory] = useState<any>(null)
   const [editingItem, setEditingItem] = useState<any>(null)
   const [categoryForm, setCategoryForm] = useState({ name: '', description: '', image_url: '' })
+  const [currentTab, setCurrentTab] = useState(0) // Tab state for form
   const [itemForm, setItemForm] = useState({
     name: '',
     short_description: '',
     description: '',
     price: '',
+    promo_price: '',
+    promo_active: false,
     category_id: '',
     image_url: '',
     featured: false,
     available: true,
     dietary_labels: [] as string[],
+    // Advanced fields
+    variants: [] as any[],
+    ingredients: [] as string[],
+    allergen_flags: [] as string[],
+    inventory_linked: false,
+    current_stock: null as number | null,
+    low_stock_threshold: 10,
+    prep_time_minutes: null as number | null,
+    availability_schedule: {} as any,
+    menu_types: ['dine-in', 'delivery', 'takeaway'] as string[],
+    visible: true,
+    homepage_featured: false,
+    meta_title: '',
+    meta_description: '',
+    internal_notes: '',
+    tags: [] as string[],
   })
   const [modifiers, setModifiers] = useState<any[]>([])
   const [upsells, setUpsells] = useState<any[]>([])
@@ -178,22 +197,35 @@ export default function MenuManagementPage() {
 
     setLoading(true)
     try {
-      // Build itemData object - only include fields that exist in the schema
+      // Build itemData object - include all fields
       const itemData: any = {
         name: itemForm.name,
         description: itemForm.description || null,
+        short_description: itemForm.short_description || null,
         price: parseFloat(itemForm.price),
+        promo_price: itemForm.promo_price ? parseFloat(itemForm.promo_price) : null,
+        promo_active: itemForm.promo_active || false,
         category_id: itemForm.category_id,
         image_url: itemForm.image_url || null,
         featured: itemForm.featured,
         available: itemForm.available,
         dietary_labels: itemForm.dietary_labels || [],
-      }
-      
-      // Try to include short_description (column will be added by migration)
-      // If column doesn't exist yet, this will be ignored by Supabase
-      if (itemForm.short_description && itemForm.short_description.trim()) {
-        itemData.short_description = itemForm.short_description.trim()
+        // Advanced fields
+        variants: itemForm.variants || [],
+        ingredients: itemForm.ingredients || [],
+        allergen_flags: itemForm.allergen_flags || [],
+        inventory_linked: itemForm.inventory_linked || false,
+        current_stock: itemForm.current_stock,
+        low_stock_threshold: itemForm.low_stock_threshold || 10,
+        prep_time_minutes: itemForm.prep_time_minutes,
+        availability_schedule: itemForm.availability_schedule || {},
+        menu_types: itemForm.menu_types || ['dine-in', 'delivery', 'takeaway'],
+        visible: itemForm.visible !== false,
+        homepage_featured: itemForm.homepage_featured || false,
+        meta_title: itemForm.meta_title || null,
+        meta_description: itemForm.meta_description || null,
+        internal_notes: itemForm.internal_notes || null,
+        tags: itemForm.tags || [],
       }
 
       let itemId: string
@@ -323,15 +355,33 @@ export default function MenuManagementPage() {
         short_description: '',
         description: '',
         price: '',
+        promo_price: '',
+        promo_active: false,
         category_id: '',
         image_url: '',
         featured: false,
         available: true,
         dietary_labels: [],
+        variants: [],
+        ingredients: [],
+        allergen_flags: [],
+        inventory_linked: false,
+        current_stock: null,
+        low_stock_threshold: 10,
+        prep_time_minutes: null,
+        availability_schedule: {},
+        menu_types: ['dine-in', 'delivery', 'takeaway'],
+        visible: true,
+        homepage_featured: false,
+        meta_title: '',
+        meta_description: '',
+        internal_notes: '',
+        tags: [],
       })
       setModifiers([])
       setUpsells([])
       setEditingItem(null)
+      setCurrentTab(0)
       
       // Reload data to show the new item
       console.log('Item saved, reloading data...')
@@ -409,12 +459,33 @@ export default function MenuManagementPage() {
                 short_description: '',
                 description: '',
                 price: '',
+                promo_price: '',
+                promo_active: false,
                 category_id: categories[0]?.id || '',
                 image_url: '',
                 featured: false,
                 available: true,
                 dietary_labels: [],
+                variants: [],
+                ingredients: [],
+                allergen_flags: [],
+                inventory_linked: false,
+                current_stock: null,
+                low_stock_threshold: 10,
+                prep_time_minutes: null,
+                availability_schedule: {},
+                menu_types: ['dine-in', 'delivery', 'takeaway'],
+                visible: true,
+                homepage_featured: false,
+                meta_title: '',
+                meta_description: '',
+                internal_notes: '',
+                tags: [],
               })
+              setCurrentTab(0)
+              setModifiers([])
+              setUpsells([])
+              setEditingItem(null)
               setShowItemModal(true)
             }}
             className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl font-semibold"
@@ -665,13 +736,31 @@ export default function MenuManagementPage() {
                               short_description: item.short_description || '',
                               description: item.description || '',
                               price: item.price.toString(),
+                              promo_price: item.promo_price ? item.promo_price.toString() : '',
+                              promo_active: item.promo_active || false,
                               category_id: item.category_id,
                               image_url: item.image_url || '',
                               featured: item.featured,
                               available: item.available,
                               dietary_labels: item.dietary_labels || [],
+                              variants: item.variants || [],
+                              ingredients: item.ingredients || [],
+                              allergen_flags: item.allergen_flags || [],
+                              inventory_linked: item.inventory_linked || false,
+                              current_stock: item.current_stock,
+                              low_stock_threshold: item.low_stock_threshold || 10,
+                              prep_time_minutes: item.prep_time_minutes,
+                              availability_schedule: item.availability_schedule || {},
+                              menu_types: item.menu_types || ['dine-in', 'delivery', 'takeaway'],
+                              visible: item.visible !== false,
+                              homepage_featured: item.homepage_featured || false,
+                              meta_title: item.meta_title || '',
+                              meta_description: item.meta_description || '',
+                              internal_notes: item.internal_notes || '',
+                              tags: item.tags || [],
                             })
                             
+                            setCurrentTab(0)
                             // Load modifiers and upsells
                             if (item.modifiers) {
                               setModifiers(item.modifiers)
@@ -754,12 +843,30 @@ export default function MenuManagementPage() {
                             short_description: item.short_description || '',
                             description: item.description || '',
                             price: item.price.toString(),
+                            promo_price: item.promo_price ? item.promo_price.toString() : '',
+                            promo_active: item.promo_active || false,
                             category_id: item.category_id,
                             image_url: item.image_url || '',
                             featured: item.featured,
                             available: item.available,
                             dietary_labels: item.dietary_labels || [],
+                            variants: item.variants || [],
+                            ingredients: item.ingredients || [],
+                            allergen_flags: item.allergen_flags || [],
+                            inventory_linked: item.inventory_linked || false,
+                            current_stock: item.current_stock,
+                            low_stock_threshold: item.low_stock_threshold || 10,
+                            prep_time_minutes: item.prep_time_minutes,
+                            availability_schedule: item.availability_schedule || {},
+                            menu_types: item.menu_types || ['dine-in', 'delivery', 'takeaway'],
+                            visible: item.visible !== false,
+                            homepage_featured: item.homepage_featured || false,
+                            meta_title: item.meta_title || '',
+                            meta_description: item.meta_description || '',
+                            internal_notes: item.internal_notes || '',
+                            tags: item.tags || [],
                           })
+                          setCurrentTab(0)
                           setModifiers(item.modifiers || [])
                           setUpsells(item.upsells?.map((u: any) => ({
                             suggested_item_id: u.suggested_item_id,
@@ -767,6 +874,7 @@ export default function MenuManagementPage() {
                             description_override: u.description_override || '',
                             order_index: u.order_index || 0,
                           })) || [])
+                          setEditingItem(item)
                           setShowItemModal(true)
                         }}
                         className="flex-1 bg-blue-500 text-white px-3 py-2 rounded text-sm hover:bg-blue-600 transition-colors"
@@ -863,212 +971,408 @@ export default function MenuManagementPage() {
                 {editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}
               </h2>
             </div>
-            <div className="p-6 space-y-6">
-              <input
-                type="text"
-                placeholder="Item Name"
-                value={itemForm.name}
-                onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-              />
-              <textarea
-                placeholder="Description"
-                value={itemForm.description}
-                onChange={(e) => setItemForm({ ...itemForm, description: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-                rows={3}
-              />
-              <input
-                type="number"
-                step="0.01"
-                placeholder="Price"
-                value={itemForm.price}
-                onChange={(e) => setItemForm({ ...itemForm, price: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-              />
-              <select
-                value={itemForm.category_id}
-                onChange={(e) => setItemForm({ ...itemForm, category_id: e.target.value })}
-                className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-              >
-                <option value="">Select Category</option>
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
+            {/* Tabs */}
+            <div className="border-b border-gray-200 dark:border-gray-700 px-6">
+              <div className="flex gap-2 overflow-x-auto">
+                {['Basic Info', 'Pricing & Tags', 'Modifiers', 'Upsells'].map((tab, index) => (
+                  <button
+                    key={tab}
+                    onClick={() => setCurrentTab(index)}
+                    className={`px-4 py-3 font-semibold transition-colors whitespace-nowrap border-b-2 ${
+                      currentTab === index
+                        ? 'border-red-600 text-red-600'
+                        : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-red-600'
+                    }`}
+                  >
+                    {tab}
+                  </button>
                 ))}
-              </select>
-              {itemForm.image_url && (
-                <Image
-                  src={itemForm.image_url}
-                  alt="Item"
-                  width={200}
-                  height={150}
-                  className="w-full h-32 object-cover rounded mb-2"
-                />
-              )}
-              <input
-                type="file"
-                accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
-                onChange={async (e) => {
-                  const file = e.target.files?.[0]
-                  if (file) {
-                    const url = await handleFileUpload(file, 'item')
-                    if (url) setItemForm({ ...itemForm, image_url: url })
-                  }
-                }}
-                className="w-full px-4 py-2 border rounded-lg dark:bg-gray-700"
-              />
-              <div className="flex gap-6">
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={itemForm.featured}
-                    onChange={(e) => setItemForm({ ...itemForm, featured: e.target.checked })}
-                    className="w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600"
-                  />
-                  <span className="font-semibold">Featured</span>
-                </label>
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={itemForm.available}
-                    onChange={(e) => setItemForm({ ...itemForm, available: e.target.checked })}
-                    className="w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600"
-                  />
-                  <span className="font-semibold">Available</span>
-                </label>
               </div>
+            </div>
 
-              {/* Short Description Field */}
-              <div>
-                <label className="block mb-2 font-semibold">Short Description (Primary Customization Summary)</label>
-                <input
-                  type="text"
-                  placeholder="e.g., (Choose Goat or Beef)"
-                  value={itemForm.short_description}
-                  onChange={(e) => setItemForm({ ...itemForm, short_description: e.target.value })}
-                  className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                />
-              </div>
-
-              {/* Required Customizations (Modifiers) */}
-              <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold">Required Customizations (Modifiers)</h3>
-                  <button
-                    type="button"
-                    onClick={() => setModifiers([...modifiers, {
-                      id: Date.now().toString(),
-                      group_name: '',
-                      is_required: true,
-                      min_selections: 0,
-                      max_selections: 1,
-                      order_index: modifiers.length,
-                      options: []
-                    }])}
-                    className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2 text-sm"
-                  >
-                    <Plus size={16} />
-                    Add Modifier
-                  </button>
-                </div>
-                <div className="space-y-3">
-                  {modifiers.map((modifier, modIndex) => (
-                    <ModifierEditor
-                      key={modifier.id || modIndex}
-                      modifier={modifier}
-                      onUpdate={(updated) => {
-                        const newModifiers = [...modifiers]
-                        newModifiers[modIndex] = updated
-                        setModifiers(newModifiers)
-                      }}
-                      onDelete={() => {
-                        setModifiers(modifiers.filter((_, i) => i !== modIndex))
-                      }}
+            <div className="p-6 space-y-6">
+              {/* TAB 0: Basic Info */}
+              {currentTab === 0 && (
+                <div className="space-y-4">
+                  <div>
+                    <label className="block mb-2 font-semibold">Item Name *</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., Chicken Curry"
+                      value={itemForm.name}
+                      onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
                     />
-                  ))}
-                  {modifiers.length === 0 && (
-                    <p className="text-sm text-gray-500 text-center py-4">No modifiers added.</p>
-                  )}
-                </div>
-              </div>
+                  </div>
 
-              {/* Recommended Add-Ons (Upsells) */}
-              <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4">
-                <div className="flex justify-between items-center mb-4">
-                  <h3 className="text-lg font-bold">Recommended Add-Ons (Goes Well With)</h3>
-                  <button
-                    type="button"
-                    onClick={() => setUpsells([...upsells, {
-                      suggested_item_id: '',
-                      message: '',
-                      description_override: '',
-                      order_index: upsells.length
-                    }])}
-                    className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 text-sm"
-                  >
-                    <Plus size={16} />
-                    Add Upsell
-                  </button>
+                  <div>
+                    <label className="block mb-2 font-semibold">Short Description</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., (Choose Goat or Beef)"
+                      value={itemForm.short_description}
+                      onChange={(e) => setItemForm({ ...itemForm, short_description: e.target.value })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Full Description</label>
+                    <textarea
+                      placeholder="Describe the dish..."
+                      value={itemForm.description}
+                      onChange={(e) => setItemForm({ ...itemForm, description: e.target.value })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      rows={3}
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Category *</label>
+                    <select
+                      value={itemForm.category_id}
+                      onChange={(e) => setItemForm({ ...itemForm, category_id: e.target.value })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    >
+                      <option value="">Select Category</option>
+                      {categories.map((cat) => (
+                        <option key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Image</label>
+                    {itemForm.image_url && (
+                      <Image
+                        src={itemForm.image_url}
+                        alt="Item"
+                        width={200}
+                        height={150}
+                        className="w-full h-48 object-cover rounded-lg mb-3"
+                      />
+                    )}
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/jpg,image/png,image/gif,image/webp"
+                      onChange={async (e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          const url = await handleFileUpload(file, 'item')
+                          if (url) setItemForm({ ...itemForm, image_url: url })
+                        }
+                      }}
+                      className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <label className="flex items-center gap-2 cursor-pointer p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-red-500 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={itemForm.featured}
+                        onChange={(e) => setItemForm({ ...itemForm, featured: e.target.checked })}
+                        className="w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600"
+                      />
+                      <span className="font-semibold">Featured</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-red-500 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={itemForm.available}
+                        onChange={(e) => setItemForm({ ...itemForm, available: e.target.checked })}
+                        className="w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600"
+                      />
+                      <span className="font-semibold">Available</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-red-500 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={itemForm.visible}
+                        onChange={(e) => setItemForm({ ...itemForm, visible: e.target.checked })}
+                        className="w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600"
+                      />
+                      <span className="font-semibold">Visible</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-red-500 transition-colors">
+                      <input
+                        type="checkbox"
+                        checked={itemForm.homepage_featured}
+                        onChange={(e) => setItemForm({ ...itemForm, homepage_featured: e.target.checked })}
+                        className="w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600"
+                      />
+                      <span className="font-semibold">Homepage Featured</span>
+                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Internal Notes (Shows in cart)</label>
+                    <textarea
+                      placeholder="Important information for customers when adding to cart..."
+                      value={itemForm.internal_notes}
+                      onChange={(e) => setItemForm({ ...itemForm, internal_notes: e.target.value })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      rows={3}
+                    />
+                  </div>
                 </div>
-                <div className="space-y-3">
-                  {upsells.map((upsell, upsellIndex) => (
-                    <div key={upsellIndex} className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-gray-50 dark:bg-gray-900/50">
-                      <div className="flex justify-between items-start mb-3">
-                        <h4 className="font-semibold">Upsell {upsellIndex + 1}</h4>
-                        <button
-                          type="button"
-                          onClick={() => setUpsells(upsells.filter((_, i) => i !== upsellIndex))}
-                          className="text-red-600 hover:text-red-700"
-                        >
-                          <Trash2 size={18} />
-                        </button>
-                      </div>
-                      <div className="space-y-2">
-                        <div>
-                          <label className="block mb-1 text-sm font-semibold">Suggested Item *</label>
-                          <select
-                            value={upsell.suggested_item_id}
-                            onChange={(e) => {
-                              const newUpsells = [...upsells]
-                              newUpsells[upsellIndex].suggested_item_id = e.target.value
-                              setUpsells(newUpsells)
-                            }}
-                            className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                          >
-                            <option value="">Select Menu Item</option>
-                            {allMenuItems.filter(item => item.id !== editingItem?.id).map((item) => (
-                              <option key={item.id} value={item.id}>
-                                {item.name} - {formatPrice(parseFloat(item.price))}
-                              </option>
-                            ))}
-                          </select>
-                        </div>
-                        <div>
-                          <label className="block mb-1 text-sm font-semibold">Description Override</label>
-                          <textarea
-                            placeholder="e.g., Delicious ripe fried plantain on the go"
-                            value={upsell.description_override}
-                            onChange={(e) => {
-                              const newUpsells = [...upsells]
-                              newUpsells[upsellIndex].description_override = e.target.value
-                              setUpsells(newUpsells)
-                            }}
-                            className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
-                            rows={2}
-                          />
-                        </div>
-                      </div>
+              )}
+
+              {/* TAB 1: Pricing & Tags */}
+              {currentTab === 1 && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block mb-2 font-semibold">Regular Price *</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={itemForm.price}
+                        onChange={(e) => setItemForm({ ...itemForm, price: e.target.value })}
+                        className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      />
                     </div>
-                  ))}
-                  {upsells.length === 0 && (
-                    <p className="text-sm text-gray-500 text-center py-4">No upsells added.</p>
-                  )}
-                </div>
-              </div>
+                    <div>
+                      <label className="block mb-2 font-semibold">Promo Price</label>
+                      <input
+                        type="number"
+                        step="0.01"
+                        placeholder="0.00"
+                        value={itemForm.promo_price}
+                        onChange={(e) => setItemForm({ ...itemForm, promo_price: e.target.value })}
+                        className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+                  </div>
 
-              <div className="flex gap-4">
+                  <label className="flex items-center gap-2 cursor-pointer p-3 border-2 border-gray-300 dark:border-gray-600 rounded-lg hover:border-red-500 transition-colors">
+                    <input
+                      type="checkbox"
+                      checked={itemForm.promo_active}
+                      onChange={(e) => setItemForm({ ...itemForm, promo_active: e.target.checked })}
+                      className="w-5 h-5 rounded border-2 border-gray-300 dark:border-gray-600"
+                    />
+                    <span className="font-semibold">Promo Active</span>
+                  </label>
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Tags (comma-separated)</label>
+                    <input
+                      type="text"
+                      placeholder="e.g., spicy, vegan, popular, chef-special"
+                      value={itemForm.tags.join(', ')}
+                      onChange={(e) => setItemForm({ ...itemForm, tags: e.target.value.split(',').map(t => t.trim()).filter(Boolean) })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Allergen Flags</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      {['Dairy', 'Nuts', 'Gluten', 'Soy', 'Eggs', 'Shellfish', 'Fish', 'Wheat'].map(allergen => (
+                        <label key={allergen} className="flex items-center gap-2 cursor-pointer p-2 border border-gray-300 dark:border-gray-600 rounded hover:border-red-500 transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={itemForm.allergen_flags.includes(allergen)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setItemForm({ ...itemForm, allergen_flags: [...itemForm.allergen_flags, allergen] })
+                              } else {
+                                setItemForm({ ...itemForm, allergen_flags: itemForm.allergen_flags.filter(a => a !== allergen) })
+                              }
+                            }}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-sm">{allergen}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Ingredients (comma-separated)</label>
+                    <textarea
+                      placeholder="e.g., chicken, rice, tomatoes, onions, spices"
+                      value={itemForm.ingredients.join(', ')}
+                      onChange={(e) => setItemForm({ ...itemForm, ingredients: e.target.value.split(',').map(i => i.trim()).filter(Boolean) })}
+                      className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      rows={2}
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block mb-2 font-semibold">Prep Time (minutes)</label>
+                      <input
+                        type="number"
+                        placeholder="15"
+                        value={itemForm.prep_time_minutes || ''}
+                        onChange={(e) => setItemForm({ ...itemForm, prep_time_minutes: e.target.value ? parseInt(e.target.value) : null })}
+                        className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-2 font-semibold">Current Stock</label>
+                      <input
+                        type="number"
+                        placeholder="100"
+                        value={itemForm.current_stock || ''}
+                        onChange={(e) => setItemForm({ ...itemForm, current_stock: e.target.value ? parseInt(e.target.value) : null })}
+                        className="w-full px-4 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block mb-2 font-semibold">Menu Types</label>
+                    <div className="grid grid-cols-3 gap-2">
+                      {['dine-in', 'delivery', 'takeaway'].map(type => (
+                        <label key={type} className="flex items-center gap-2 cursor-pointer p-2 border border-gray-300 dark:border-gray-600 rounded hover:border-red-500 transition-colors">
+                          <input
+                            type="checkbox"
+                            checked={itemForm.menu_types.includes(type)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setItemForm({ ...itemForm, menu_types: [...itemForm.menu_types, type] })
+                              } else {
+                                setItemForm({ ...itemForm, menu_types: itemForm.menu_types.filter(t => t !== type) })
+                              }
+                            }}
+                            className="w-4 h-4"
+                          />
+                          <span className="text-sm capitalize">{type}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 2: Modifiers */}
+              {currentTab === 2 && (
+                <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold">Required Customizations (Modifiers)</h3>
+                    <button
+                      type="button"
+                      onClick={() => setModifiers([...modifiers, {
+                        id: Date.now().toString(),
+                        group_name: '',
+                        is_required: true,
+                        min_selections: 0,
+                        max_selections: 1,
+                        order_index: modifiers.length,
+                        options: []
+                      }])}
+                      className="bg-green-500 text-white px-3 py-1 rounded-lg hover:bg-green-600 transition-colors flex items-center gap-2 text-sm"
+                    >
+                      <Plus size={16} />
+                      Add Modifier
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    {modifiers.map((modifier, modIndex) => (
+                      <ModifierEditor
+                        key={modifier.id || modIndex}
+                        modifier={modifier}
+                        onUpdate={(updated) => {
+                          const newModifiers = [...modifiers]
+                          newModifiers[modIndex] = updated
+                          setModifiers(newModifiers)
+                        }}
+                        onDelete={() => {
+                          setModifiers(modifiers.filter((_, i) => i !== modIndex))
+                        }}
+                      />
+                    ))}
+                    {modifiers.length === 0 && (
+                      <p className="text-sm text-gray-500 text-center py-4">No modifiers added. Click "Add Modifier" to create customization options.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* TAB 3: Upsells */}
+              {currentTab === 3 && (
+                <div className="border-2 border-gray-200 dark:border-gray-700 rounded-xl p-4">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-lg font-bold">Recommended Add-Ons (Goes Well With)</h3>
+                    <button
+                      type="button"
+                      onClick={() => setUpsells([...upsells, {
+                        suggested_item_id: '',
+                        message: '',
+                        description_override: '',
+                        order_index: upsells.length
+                      }])}
+                      className="bg-blue-500 text-white px-3 py-1 rounded-lg hover:bg-blue-600 transition-colors flex items-center gap-2 text-sm"
+                    >
+                      <Plus size={16} />
+                      Add Upsell
+                    </button>
+                  </div>
+                  <div className="space-y-3">
+                    {upsells.map((upsell, upsellIndex) => (
+                      <div key={upsellIndex} className="border border-gray-300 dark:border-gray-600 rounded-lg p-3 bg-gray-50 dark:bg-gray-900/50">
+                        <div className="flex justify-between items-start mb-3">
+                          <h4 className="font-semibold">Upsell {upsellIndex + 1}</h4>
+                          <button
+                            type="button"
+                            onClick={() => setUpsells(upsells.filter((_, i) => i !== upsellIndex))}
+                            className="text-red-600 hover:text-red-700"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                        <div className="space-y-2">
+                          <div>
+                            <label className="block mb-1 text-sm font-semibold">Suggested Item *</label>
+                            <select
+                              value={upsell.suggested_item_id}
+                              onChange={(e) => {
+                                const newUpsells = [...upsells]
+                                newUpsells[upsellIndex].suggested_item_id = e.target.value
+                                setUpsells(newUpsells)
+                              }}
+                              className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                            >
+                              <option value="">Select Menu Item</option>
+                              {allMenuItems.filter(item => item.id !== editingItem?.id).map((item) => (
+                                <option key={item.id} value={item.id}>
+                                  {item.name} - {formatPrice(parseFloat(item.price))}
+                                </option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block mb-1 text-sm font-semibold">Description Override</label>
+                            <textarea
+                              placeholder="e.g., Delicious ripe fried plantain on the go"
+                              value={upsell.description_override}
+                              onChange={(e) => {
+                                const newUpsells = [...upsells]
+                                newUpsells[upsellIndex].description_override = e.target.value
+                                setUpsells(newUpsells)
+                              }}
+                              className="w-full px-3 py-2 border-2 border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                              rows={2}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    {upsells.length === 0 && (
+                      <p className="text-sm text-gray-500 text-center py-4">No upsells added. Click "Add Upsell" to suggest items that go well with this dish.</p>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="flex gap-4 pt-4 border-t border-gray-200 dark:border-gray-700">
                 <button
                   onClick={saveItem}
                   disabled={loading}
@@ -1085,14 +1389,33 @@ export default function MenuManagementPage() {
                       short_description: '',
                       description: '',
                       price: '',
+                      promo_price: '',
+                      promo_active: false,
                       category_id: '',
                       image_url: '',
                       featured: false,
                       available: true,
                       dietary_labels: [],
+                      variants: [],
+                      ingredients: [],
+                      allergen_flags: [],
+                      inventory_linked: false,
+                      current_stock: null,
+                      low_stock_threshold: 10,
+                      prep_time_minutes: null,
+                      availability_schedule: {},
+                      menu_types: ['dine-in', 'delivery', 'takeaway'],
+                      visible: true,
+                      homepage_featured: false,
+                      meta_title: '',
+                      meta_description: '',
+                      internal_notes: '',
+                      tags: [],
                     })
                     setModifiers([])
                     setUpsells([])
+                    setCurrentTab(0)
+                    setShowItemModal(false)
                   }}
                   className="flex-1 bg-gray-200 dark:bg-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
                 >
