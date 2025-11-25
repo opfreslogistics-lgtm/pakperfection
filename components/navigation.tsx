@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback, memo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useTheme } from './theme-provider'
@@ -15,23 +15,46 @@ interface NavigationProps {
   theme?: any
 }
 
-export default function Navigation({ branding, navSettings, theme }: NavigationProps) {
+function Navigation({ branding, navSettings, theme }: NavigationProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [user, setUser] = useState<any>(null)
   const [userRole, setUserRole] = useState<string | null>(null)
   const { theme: currentTheme, toggleTheme } = useTheme()
   const [mounted, setMounted] = useState(false)
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
   const router = useRouter()
 
   useEffect(() => {
     setMounted(true)
-    checkUser()
     
-    // Listen for auth changes
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      if (session) {
-        checkUser()
+    // Check user once on mount
+    const checkInitialUser = async () => {
+      const { data: { user: currentUser } } = await supabase.auth.getUser()
+      if (currentUser) {
+        setUser(currentUser)
+        // Fetch role only once
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', currentUser.id)
+          .single()
+        setUserRole(profile?.role || null)
+      }
+    }
+    
+    checkInitialUser()
+    
+    // Listen for auth changes only
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (session?.user) {
+        setUser(session.user)
+        // Fetch role only when user changes
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', session.user.id)
+          .single()
+        setUserRole(profile?.role || null)
       } else {
         setUser(null)
         setUserRole(null)
@@ -41,42 +64,31 @@ export default function Navigation({ branding, navSettings, theme }: NavigationP
     return () => subscription.unsubscribe()
   }, [])
 
-  const checkUser = async () => {
-    const { data: { user: currentUser } } = await supabase.auth.getUser()
-    if (currentUser) {
-      setUser(currentUser)
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', currentUser.id)
-        .single()
-      setUserRole(profile?.role || null)
-    }
-  }
-
-  const handleLogout = async () => {
+  const handleLogout = useCallback(async () => {
     await supabase.auth.signOut()
     setUser(null)
     setUserRole(null)
     toast.success('Logged out successfully')
     router.push('/home')
     router.refresh()
-  }
+  }, [supabase, router])
 
-  const logoUrl = currentTheme === 'dark' && branding?.dark_logo_url 
-    ? branding.dark_logo_url 
-    : branding?.logo_url
+  const logoUrl = useMemo(() => 
+    currentTheme === 'dark' && branding?.dark_logo_url 
+      ? branding.dark_logo_url 
+      : branding?.logo_url
+  , [currentTheme, branding])
 
-  const navLinks = navSettings?.main_nav_links || [
+  const navLinks = useMemo(() => navSettings?.main_nav_links || [
     { label: 'Home', href: '/home' },
     { label: 'About', href: '/about' },
     { label: 'Menu', href: '/menu' },
     { label: 'Gallery', href: '/gallery' },
     { label: 'Blog', href: '/blog' },
     { label: 'Contact', href: '/contact' },
-  ]
+  ], [navSettings])
 
-  const topBarLinks = navSettings?.top_bar_links || []
+  const topBarLinks = useMemo(() => navSettings?.top_bar_links || [], [navSettings])
 
   return (
     <>
@@ -286,3 +298,4 @@ export default function Navigation({ branding, navSettings, theme }: NavigationP
   )
 }
 
+export default memo(Navigation)

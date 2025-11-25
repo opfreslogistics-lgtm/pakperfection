@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Navigation from '@/components/navigation-new'
 import Footer from '@/components/footer'
@@ -15,13 +15,13 @@ export default function GalleryPage() {
   const [galleryImages, setGalleryImages] = useState<Array<{ id: string; url: string; category: string; title: string }>>([])
   const [selectedCategory, setSelectedCategory] = useState<string>('All')
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
   useEffect(() => {
     loadData()
   }, [])
 
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     try {
       const [brandingRes, navRes, footerRes, themeRes, mediaRes] = await Promise.all([
         supabase.from('branding').select('*').maybeSingle(),
@@ -69,12 +69,15 @@ export default function GalleryPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase])
 
-  const categories = ['All', 'Food', 'Interior', 'Events', 'People', 'Gallery']
-  const filteredImages = selectedCategory === 'All' 
-    ? galleryImages 
-    : galleryImages.filter(img => img.category === selectedCategory)
+  const categories = useMemo(() => ['All', 'Food', 'Interior', 'Events', 'People', 'Gallery'], [])
+  
+  const filteredImages = useMemo(() => 
+    selectedCategory === 'All' 
+      ? galleryImages 
+      : galleryImages.filter(img => img.category === selectedCategory)
+  , [galleryImages, selectedCategory])
 
   if (loading) {
     return (

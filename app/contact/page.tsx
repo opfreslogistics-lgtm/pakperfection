@@ -1,12 +1,18 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import toast from 'react-hot-toast'
 import { Mail, Phone, MapPin, Clock, Send, Navigation as NavIcon } from 'lucide-react'
 import Navigation from '@/components/navigation-new'
 import Footer from '@/components/footer'
-import GoogleMap from '@/components/contact/google-map'
+import dynamic from 'next/dynamic'
+
+// Lazy load Google Map component
+const GoogleMap = dynamic(() => import('@/components/contact/google-map'), {
+  ssr: false,
+  loading: () => <div className="w-full h-[400px] bg-gray-200 dark:bg-gray-700 rounded-lg animate-pulse" />
+})
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -17,9 +23,9 @@ export default function ContactPage() {
     message: '',
   })
   const [loading, setLoading] = useState(false)
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
@@ -67,7 +73,7 @@ export default function ContactPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase, formData])
 
   return (
     <div className="min-h-screen bg-gray-50 dark:bg-gray-900">

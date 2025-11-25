@@ -2,6 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Admin Panel Mobile Responsiveness */
+@layer utilities {
+  /* Make tables responsive on mobile */
+  .admin-table-container {
+    @apply overflow-x-auto -mx-4 sm:mx-0;
+  }
+  
+  .admin-table-container table {
+    @apply min-w-full;
+  }
+  
+  /* Mobile-friendly form inputs */
+  .admin-form-input {
+    @apply w-full text-base; /* Prevent zoom on iOS */
+  }
+  
+  /* Responsive card grid for admin */
+  .admin-grid {
+    @apply grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4;
+  }
+  
+  /* Scrollable content areas */
+  .admin-scroll {
+    @apply overflow-y-auto max-h-[calc(100vh-200px)];
+  }
+}
+
 /* Custom animations for hero slider owner image */
 @keyframes float {
   0%, 100% {

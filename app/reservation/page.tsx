@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo, useCallback } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import Navigation from '@/components/navigation-new'
 import Footer from '@/components/footer'
@@ -19,9 +19,9 @@ export default function ReservationPage() {
   })
   const [loading, setLoading] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
 
@@ -89,13 +89,13 @@ export default function ReservationPage() {
     } finally {
       setLoading(false)
     }
-  }
+  }, [supabase, formData])
 
-  const timeSlots = [
+  const timeSlots = useMemo(() => [
     '11:00 AM', '11:30 AM', '12:00 PM', '12:30 PM', '1:00 PM', '1:30 PM',
     '2:00 PM', '2:30 PM', '5:00 PM', '5:30 PM', '6:00 PM', '6:30 PM',
     '7:00 PM', '7:30 PM', '8:00 PM', '8:30 PM', '9:00 PM', '9:30 PM'
-  ]
+  ], [])
 
   return (
     <div className="min-h-screen">
