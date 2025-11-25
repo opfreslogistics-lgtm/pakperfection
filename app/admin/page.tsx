@@ -112,50 +112,50 @@ export default async function AdminDashboard() {
   }
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Dashboard Overview</h1>
-          <p className="text-gray-600 dark:text-gray-400">Welcome back! Here's what's happening with your business today.</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">Dashboard Overview</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Welcome back! Here's what's happening with your business today.</p>
         </div>
         <div className="flex items-center gap-3">
-          <div className="px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
-            <p className="text-sm text-gray-500 dark:text-gray-400">Last updated</p>
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">{new Date().toLocaleTimeString()}</p>
+          <div className="px-3 sm:px-4 py-2 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Last updated</p>
+            <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">{new Date().toLocaleTimeString()}</p>
           </div>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
         {stats.map((stat, index) => {
           const Icon = stat.icon
           return (
             <Link
               key={index}
               href={stat.link}
-              className={`group relative overflow-hidden bg-gradient-to-br ${stat.bgGradient} rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:scale-105`}
+              className={`group relative overflow-hidden bg-gradient-to-br ${stat.bgGradient} rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-200 dark:border-gray-700 hover:scale-105`}
             >
-              <div className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <div className={`p-3 bg-gradient-to-br ${stat.gradient} rounded-xl shadow-lg`}>
-                    <Icon className="text-white" size={24} />
+              <div className="p-4 sm:p-6">
+                <div className="flex items-center justify-between mb-3 sm:mb-4">
+                  <div className={`p-2 sm:p-3 bg-gradient-to-br ${stat.gradient} rounded-lg sm:rounded-xl shadow-lg`}>
+                    <Icon className="text-white" size={20} />
                   </div>
                   {stat.changeType === 'up' ? (
                     <div className="flex items-center gap-1 text-green-600 dark:text-green-400">
-                      <ArrowUpRight size={16} />
-                      <span className="text-sm font-semibold">{stat.change}</span>
+                      <ArrowUpRight size={14} />
+                      <span className="text-xs sm:text-sm font-semibold">{stat.change}</span>
                     </div>
                   ) : (
                     <div className="flex items-center gap-1 text-red-600 dark:text-red-400">
-                      <ArrowDownRight size={16} />
-                      <span className="text-sm font-semibold">{stat.change}</span>
+                      <ArrowDownRight size={14} />
+                      <span className="text-xs sm:text-sm font-semibold">{stat.change}</span>
                     </div>
                   )}
                 </div>
-                <h3 className="text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{stat.title}</h3>
-                <p className="text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
+                <h3 className="text-xs sm:text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">{stat.title}</h3>
+                <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{stat.value}</p>
               </div>
               <div className={`absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r ${stat.gradient} opacity-0 group-hover:opacity-100 transition-opacity`}></div>
             </Link>
@@ -164,17 +164,17 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Charts and Data Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
         {/* Order Status Chart */}
-        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between mb-6">
+        <div className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4 sm:mb-6">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-blue-100 dark:bg-blue-900/30 rounded-lg">
-                <BarChart3 className="text-blue-600 dark:text-blue-400" size={24} />
+                <BarChart3 className="text-blue-600 dark:text-blue-400" size={20} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Order Status Distribution</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Current order breakdown</p>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Order Status Distribution</h2>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Current order breakdown</p>
               </div>
             </div>
           </div>
@@ -211,27 +211,27 @@ export default async function AdminDashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-gray-200 dark:border-gray-700">
-          <div className="flex items-center gap-3 mb-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-gray-200 dark:border-gray-700">
+          <div className="flex items-center gap-3 mb-4 sm:mb-6">
             <div className="p-2 bg-purple-100 dark:bg-purple-900/30 rounded-lg">
-              <Activity className="text-purple-600 dark:text-purple-400" size={24} />
+              <Activity className="text-purple-600 dark:text-purple-400" size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900 dark:text-white">Quick Actions</h2>
-              <p className="text-sm text-gray-500 dark:text-gray-400">Common tasks</p>
+              <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Quick Actions</h2>
+              <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Common tasks</p>
             </div>
           </div>
-          <div className="space-y-3">
+          <div className="space-y-2 sm:space-y-3">
             {quickActions.map((action, index) => {
               const Icon = action.icon
               return (
                 <Link
                   key={index}
                   href={action.href}
-                  className={`flex items-center gap-3 ${action.color} text-white p-4 rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105`}
+                  className={`flex items-center gap-2 sm:gap-3 ${action.color} text-white p-3 sm:p-4 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105`}
                 >
-                  <Icon size={20} />
-                  <span className="font-semibold">{action.label}</span>
+                  <Icon size={18} />
+                  <span className="text-sm sm:text-base font-semibold">{action.label}</span>
                 </Link>
               )
             })}
@@ -240,56 +240,56 @@ export default async function AdminDashboard() {
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
-        <div className="p-6 border-b border-gray-200 dark:border-gray-700">
-          <div className="flex items-center justify-between">
+      <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div className="p-4 sm:p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-lg">
-                <Clock className="text-green-600 dark:text-green-400" size={24} />
+                <Clock className="text-green-600 dark:text-green-400" size={20} />
               </div>
               <div>
-                <h2 className="text-xl font-bold text-gray-900 dark:text-white">Recent Orders</h2>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Latest 5 orders</p>
+                <h2 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white">Recent Orders</h2>
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">Latest 5 orders</p>
               </div>
             </div>
             <Link
               href="/admin/orders"
-              className="px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all font-semibold shadow-md hover:shadow-lg"
+              className="px-3 sm:px-4 py-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all text-sm sm:text-base font-semibold shadow-md hover:shadow-lg text-center"
             >
               View All
             </Link>
           </div>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full min-w-[600px]">
             <thead className="bg-gray-50 dark:bg-gray-900">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Order ID</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Date</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Order ID</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Total</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Status</th>
+                <th className="px-3 sm:px-6 py-3 sm:py-4 text-left text-xs font-semibold text-gray-600 dark:text-gray-400 uppercase tracking-wider">Date</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
               {recentOrders.data && recentOrders.data.length > 0 ? (
                 recentOrders.data.map((order: any) => (
                   <tr key={order.id} className="hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-mono text-sm font-semibold text-gray-900 dark:text-white">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                      <span className="font-mono text-xs sm:text-sm font-semibold text-gray-900 dark:text-white">
                         {order.order_number || order.id.slice(0, 8).toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="font-bold text-green-600 dark:text-green-400">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                      <span className="text-sm sm:text-base font-bold text-green-600 dark:text-green-400">
                         ${parseFloat(order.total || '0').toFixed(2)}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className={`px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.current_status || 'pending')}`}>
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                      <span className={`px-2 sm:px-3 py-1 rounded-full text-xs font-semibold ${getStatusColor(order.current_status || 'pending')}`}>
                         {(order.current_status || 'pending').replace('_', ' ').toUpperCase()}
                       </span>
                     </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-gray-400">
+                    <td className="px-3 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-xs sm:text-sm text-gray-600 dark:text-gray-400">
                       {new Date(order.created_at).toLocaleDateString('en-US', {
                         month: 'short',
                         day: 'numeric',
@@ -300,9 +300,9 @@ export default async function AdminDashboard() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan={4} className="px-6 py-12 text-center text-gray-500 dark:text-gray-400">
-                    <Package size={48} className="mx-auto mb-2 opacity-50" />
-                    <p>No recent orders</p>
+                  <td colSpan={4} className="px-3 sm:px-6 py-8 sm:py-12 text-center text-gray-500 dark:text-gray-400">
+                    <Package size={40} className="mx-auto mb-2 opacity-50" />
+                    <p className="text-sm sm:text-base">No recent orders</p>
                   </td>
                 </tr>
               )}

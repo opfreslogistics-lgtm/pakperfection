@@ -432,23 +432,23 @@ export default function MenuManagementPage() {
   }
 
   return (
-    <div className="p-8 space-y-8">
+    <div className="space-y-6 sm:space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Menu Management</h1>
-          <p className="text-gray-600 dark:text-gray-400">Create and manage your menu categories and items</p>
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 dark:text-white mb-2">Menu Management</h1>
+          <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Create and manage your menu categories and items</p>
         </div>
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
           <button
             onClick={() => {
               setEditingCategory(null)
               setCategoryForm({ name: '', description: '', image_url: '' })
               setShowCategoryModal(true)
             }}
-            className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl font-semibold"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl text-sm sm:text-base font-semibold"
           >
-            <Plus size={20} />
+            <Plus size={18} />
             Add Category
           </button>
           <button
@@ -488,60 +488,60 @@ export default function MenuManagementPage() {
               setEditingItem(null)
               setShowItemModal(true)
             }}
-            className="flex items-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl font-semibold"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all shadow-lg hover:shadow-xl text-sm sm:text-base font-semibold"
           >
-            <Plus size={20} />
+            <Plus size={18} />
             Add Item
           </button>
         </div>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-2xl shadow-lg p-6 border-2 border-blue-200 dark:border-blue-800 hover:shadow-xl transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
-              <Package className="text-white" size={28} />
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 lg:gap-6">
+        <div className="bg-gradient-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border-2 border-blue-200 dark:border-blue-800 hover:shadow-xl transition-all">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-blue-600 rounded-lg sm:rounded-xl shadow-lg">
+              <Package className="text-white" size={20} />
             </div>
           </div>
-          <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Total Items</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">{items.length}</p>
+          <p className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Total Items</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{items.length}</p>
         </div>
-        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-2xl shadow-lg p-6 border-2 border-green-200 dark:border-green-800 hover:shadow-xl transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-xl shadow-lg">
-              <Star className="text-white" size={28} />
+        <div className="bg-gradient-to-br from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border-2 border-green-200 dark:border-green-800 hover:shadow-xl transition-all">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="p-2 sm:p-3 bg-gradient-to-br from-green-500 to-green-600 rounded-lg sm:rounded-xl shadow-lg">
+              <Star className="text-white" size={20} />
             </div>
           </div>
-          <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Featured Items</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">{items.filter(i => i.featured).length}</p>
+          <p className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Featured Items</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{items.filter(i => i.featured).length}</p>
         </div>
-        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-2xl shadow-lg p-6 border-2 border-purple-200 dark:border-purple-800 hover:shadow-xl transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg">
-              <Upload className="text-white" size={28} />
+        <div className="bg-gradient-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border-2 border-purple-200 dark:border-purple-800 hover:shadow-xl transition-all">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-500 to-purple-600 rounded-lg sm:rounded-xl shadow-lg">
+              <Upload className="text-white" size={20} />
             </div>
           </div>
-          <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Categories</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">{categories.length}</p>
+          <p className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Categories</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{categories.length}</p>
         </div>
-        <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-2xl shadow-lg p-6 border-2 border-orange-200 dark:border-orange-800 hover:shadow-xl transition-all">
-          <div className="flex items-center justify-between mb-4">
-            <div className="p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl shadow-lg">
-              <CheckCircle className="text-white" size={28} />
+        <div className="bg-gradient-to-br from-orange-50 to-orange-100 dark:from-orange-900/20 dark:to-orange-800/20 rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border-2 border-orange-200 dark:border-orange-800 hover:shadow-xl transition-all">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <div className="p-2 sm:p-3 bg-gradient-to-br from-orange-500 to-orange-600 rounded-lg sm:rounded-xl shadow-lg">
+              <CheckCircle className="text-white" size={20} />
             </div>
           </div>
-          <p className="text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Available</p>
-          <p className="text-3xl font-bold text-gray-900 dark:text-white">{items.filter(i => i.available).length}</p>
+          <p className="text-xs sm:text-sm font-semibold text-gray-600 dark:text-gray-400 mb-1">Available</p>
+          <p className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">{items.filter(i => i.available).length}</p>
         </div>
       </div>
 
       {/* Categories */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-6">
+      <div className="mb-6 sm:mb-8">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4 sm:mb-6">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Categories</h2>
-            <p className="text-gray-600 dark:text-gray-400">Organize your menu into categories</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Categories</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Organize your menu into categories</p>
           </div>
           <button
             onClick={() => {
@@ -549,13 +549,13 @@ export default function MenuManagementPage() {
               setCategoryForm({ name: '', description: '', image_url: '' })
               setShowCategoryModal(true)
             }}
-            className="flex items-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-6 py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl font-semibold"
+            className="flex items-center justify-center gap-2 bg-gradient-to-r from-green-500 to-green-600 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:from-green-600 hover:to-green-700 transition-all shadow-lg hover:shadow-xl text-sm sm:text-base font-semibold"
           >
-            <Plus size={20} />
+            <Plus size={18} />
             Add Category
           </button>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {categories.map((category) => (
             <div key={category.id} className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg overflow-hidden border-2 border-gray-200 dark:border-gray-700 hover:shadow-xl transition-all group">
               <div className="relative h-48 bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-800">
@@ -607,21 +607,21 @@ export default function MenuManagementPage() {
 
       {/* Menu Items */}
       <div>
-        <div className="flex justify-between items-center mb-6">
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4 mb-4 sm:mb-6">
           <div>
-            <h2 className="text-3xl font-bold text-gray-900 dark:text-white mb-2">Menu Items</h2>
-            <p className="text-gray-600 dark:text-gray-400">Manage all your menu items and their details</p>
+            <h2 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">Menu Items</h2>
+            <p className="text-sm sm:text-base text-gray-600 dark:text-gray-400">Manage all your menu items and their details</p>
           </div>
-          <div className="flex items-center gap-4">
-            <div className="px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-xl text-sm font-semibold text-gray-700 dark:text-gray-300">
+          <div className="flex items-center gap-3">
+            <div className="px-3 sm:px-4 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg sm:rounded-xl text-xs sm:text-sm font-semibold text-gray-700 dark:text-gray-300">
               {items.length} {items.length === 1 ? 'item' : 'items'} total
             </div>
             <button
               onClick={loadData}
-              className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all shadow-md hover:shadow-lg font-semibold"
+              className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-gradient-to-r from-gray-500 to-gray-600 text-white rounded-lg sm:rounded-xl hover:from-gray-600 hover:to-gray-700 transition-all shadow-md hover:shadow-lg text-xs sm:text-sm font-semibold"
             >
-              <Upload size={16} />
-              Refresh
+              <Upload size={14} />
+              <span className="hidden sm:inline">Refresh</span>
             </button>
           </div>
         </div>
@@ -663,7 +663,7 @@ export default function MenuManagementPage() {
                 </span>
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-4">
                 {categoryItems.map((item) => (
                   <div
                     key={item.id}
@@ -899,8 +899,8 @@ export default function MenuManagementPage() {
       {/* Category Modal */}
       {showCategoryModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-md w-full">
-            <h2 className="text-2xl font-bold mb-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl p-4 sm:p-6 max-w-md w-full max-h-[90vh] overflow-y-auto">
+            <h2 className="text-xl sm:text-2xl font-bold mb-4">
               {editingCategory ? 'Edit Category' : 'Add Category'}
             </h2>
             <div className="space-y-4">
@@ -964,21 +964,21 @@ export default function MenuManagementPage() {
 
       {/* Item Modal */}
       {showItemModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b p-6 z-10">
-              <h2 className="text-3xl font-bold">
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-xl sm:rounded-2xl shadow-2xl max-w-4xl w-full max-h-[95vh] sm:max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b p-4 sm:p-6 z-10">
+              <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold">
                 {editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}
               </h2>
             </div>
             {/* Tabs */}
-            <div className="border-b border-gray-200 dark:border-gray-700 px-6">
-              <div className="flex gap-2 overflow-x-auto">
+            <div className="border-b border-gray-200 dark:border-gray-700 px-3 sm:px-6">
+              <div className="flex gap-1 sm:gap-2 overflow-x-auto">
                 {['Basic Info', 'Pricing & Tags', 'Modifiers', 'Upsells'].map((tab, index) => (
                   <button
                     key={tab}
                     onClick={() => setCurrentTab(index)}
-                    className={`px-4 py-3 font-semibold transition-colors whitespace-nowrap border-b-2 ${
+                    className={`px-3 sm:px-4 py-2 sm:py-3 text-xs sm:text-sm font-semibold transition-colors whitespace-nowrap border-b-2 ${
                       currentTab === index
                         ? 'border-red-600 text-red-600'
                         : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-red-600'
@@ -990,7 +990,7 @@ export default function MenuManagementPage() {
               </div>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
               {/* TAB 0: Basic Info */}
               {currentTab === 0 && (
                 <div className="space-y-4">
