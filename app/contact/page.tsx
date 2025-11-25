@@ -24,42 +24,24 @@ export default function ContactPage() {
     setLoading(true)
 
     try {
-      // Insert contact submission
-      const { data: submission, error } = await supabase
-        .from('contact_submissions')
-        .insert(formData)
-        .select()
-        .single()
+      // Submit via API route (server-side) to avoid RLS issues
+      const response = await fetch('/api/contact/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData),
+      })
 
-      if (error) throw error
+      const result = await response.json()
 
-      // Send confirmation emails
-      if (submission?.id) {
-        try {
-          const emailResponse = await fetch('/api/email/send-contact-email', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ submissionId: submission.id }),
-          })
-
-          const emailResult = await emailResponse.json()
-          if (emailResult.success) {
-            // Success message already shown above
-          } else {
-            console.error('Failed to send contact email:', emailResult.error)
-            // Don't fail the submission if email fails
-            toast.error('Message saved but email could not be sent. Please check your email settings in admin panel.')
-          }
-        } catch (emailError: any) {
-          console.error('Error sending contact email:', emailError)
-          toast.error('Message saved but email could not be sent: ' + (emailError.message || 'Unknown error'))
-          // Don't fail the submission if email fails
-        }
+      if (!response.ok || !result.success) {
+        throw new Error(result.error || result.details || 'Failed to submit contact form')
       }
 
       toast.success('Message sent successfully! You will receive a confirmation email shortly.')
+      
+      // Reset form
       setFormData({
         name: '',
         email: '',
@@ -68,7 +50,8 @@ export default function ContactPage() {
         message: '',
       })
     } catch (error: any) {
-      toast.error(error.message || 'Failed to send message')
+      console.error('Contact form submission error:', error)
+      toast.error(error.message || 'Failed to send message. Please try again.')
     } finally {
       setLoading(false)
     }
