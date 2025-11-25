@@ -129,11 +129,6 @@ export default function TrackOrderPage() {
     </div>
   )
 }
-  const [orderId, setOrderId] = useState('')
-  const [order, setOrder] = useState<any>(null)
-  const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
-  const [branding, setBranding] = useState<any>(null)
   const [navSettings, setNavSettings] = useState<any>(null)
   const [footer, setFooter] = useState<any>(null)
   const [theme, setTheme] = useState<any>(null)

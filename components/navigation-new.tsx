@@ -106,7 +106,7 @@ export default function NavigationNew({ branding: propBranding, navSettings, the
     { label: 'Events', href: '/events' },
     { label: 'Gallery', href: '/gallery' },
     { label: 'Reservation', href: '/reservation' },
-    { label: 'Track Order', href: '/track-order' },
+    { label: 'My Orders', href: '/track-order' },
     { label: 'Blog', href: '/blog' },
     { label: 'Contact', href: '/contact' },
   ]
