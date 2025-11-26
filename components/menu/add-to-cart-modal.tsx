@@ -152,9 +152,159 @@ export default function AddToCartModal({ item, isOpen, onClose, onAddToCart }: A
 
           {/* Description */}
           {item.description && (
-            <div>
-              <h3 className="font-semibold text-lg mb-2">What's in the Meal</h3>
+            <div className="bg-white dark:bg-gray-800 rounded-xl p-5 border-2 border-gray-200 dark:border-gray-700">
+              <h3 className="font-semibold text-lg mb-2 text-gray-900 dark:text-white">What's in the Meal</h3>
               <p className="text-gray-600 dark:text-gray-400 leading-relaxed">{item.description}</p>
+            </div>
+          )}
+
+          {/* Ingredients List */}
+          {item.ingredients && item.ingredients.length > 0 && (
+            <div className="bg-green-50 dark:bg-green-900/20 rounded-xl p-5 border-2 border-green-200 dark:border-green-800">
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
+                <span className="text-2xl">🥘</span>
+                Ingredients
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {item.ingredients.map((ingredient: string, idx: number) => (
+                  <span
+                    key={idx}
+                    className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 px-3 py-1.5 rounded-full text-sm font-medium border border-green-300 dark:border-green-700"
+                  >
+                    {ingredient}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Allergen Warnings */}
+          {item.allergen_flags && item.allergen_flags.length > 0 && (
+            <div className="bg-red-50 dark:bg-red-900/20 rounded-xl p-5 border-2 border-red-200 dark:border-red-800">
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
+                <span className="text-2xl">⚠️</span>
+                Allergen Information
+              </h3>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                This dish contains or may contain traces of:
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {item.allergen_flags.map((allergen: string, idx: number) => (
+                  <span
+                    key={idx}
+                    className="bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 px-3 py-1.5 rounded-full text-sm font-bold border border-red-300 dark:border-red-700"
+                  >
+                    {allergen}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Dietary Labels & Tags */}
+          {((item.dietary_labels && item.dietary_labels.length > 0) || (item.tags && item.tags.length > 0)) && (
+            <div className="bg-blue-50 dark:bg-blue-900/20 rounded-xl p-5 border-2 border-blue-200 dark:border-blue-800">
+              <h3 className="font-bold text-lg mb-3 flex items-center gap-2 text-gray-900 dark:text-white">
+                <span className="text-2xl">🏷️</span>
+                Labels & Categories
+              </h3>
+              <div className="space-y-3">
+                {item.dietary_labels && item.dietary_labels.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase">Dietary</p>
+                    <div className="flex flex-wrap gap-2">
+                      {item.dietary_labels.map((label: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 px-3 py-1.5 rounded-full text-sm font-medium border border-green-300 dark:border-green-700"
+                        >
+                          ✓ {label}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {item.tags && item.tags.length > 0 && (
+                  <div>
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-2 uppercase">Tags</p>
+                    <div className="flex flex-wrap gap-2">
+                      {item.tags.map((tag: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="bg-blue-100 dark:bg-blue-900/40 text-blue-800 dark:text-blue-300 px-3 py-1.5 rounded-full text-sm font-medium border border-blue-300 dark:border-blue-700"
+                        >
+                          # {tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Prep Time & Menu Types */}
+          {(item.prep_time_minutes || (item.menu_types && item.menu_types.length > 0)) && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-5 border-2 border-yellow-200 dark:border-yellow-800">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {item.prep_time_minutes && (
+                  <div>
+                    <h4 className="font-bold text-sm mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
+                      <span className="text-xl">⏱️</span>
+                      Prep Time
+                    </h4>
+                    <p className="text-2xl font-bold text-yellow-700 dark:text-yellow-400">
+                      {item.prep_time_minutes} mins
+                    </p>
+                  </div>
+                )}
+                {item.menu_types && item.menu_types.length > 0 && (
+                  <div>
+                    <h4 className="font-bold text-sm mb-2 flex items-center gap-2 text-gray-900 dark:text-white">
+                      <span className="text-xl">🍽️</span>
+                      Available For
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {item.menu_types.map((type: string, idx: number) => (
+                        <span
+                          key={idx}
+                          className="bg-yellow-100 dark:bg-yellow-900/40 text-yellow-800 dark:text-yellow-300 px-2 py-1 rounded text-xs font-medium border border-yellow-300 dark:border-yellow-700"
+                        >
+                          {type}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Stock Information */}
+          {item.inventory_linked && item.current_stock !== null && (
+            <div className={`rounded-xl p-5 border-2 ${
+              item.current_stock <= (item.low_stock_threshold || 10)
+                ? 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'
+                : 'bg-gray-100 dark:bg-gray-800 border-gray-200 dark:border-gray-700'
+            }`}>
+              <div className="flex items-center justify-between">
+                <h4 className="font-bold text-sm flex items-center gap-2 text-gray-900 dark:text-white">
+                  <span className="text-xl">📦</span>
+                  Stock Status
+                </h4>
+                <span className={`font-bold ${
+                  item.current_stock <= (item.low_stock_threshold || 10)
+                    ? 'text-orange-700 dark:text-orange-400'
+                    : 'text-green-700 dark:text-green-400'
+                }`}>
+                  {item.current_stock} {item.current_stock === 1 ? 'unit' : 'units'} left
+                </span>
+              </div>
+              {item.current_stock <= (item.low_stock_threshold || 10) && (
+                <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">
+                  ⚡ Limited stock - Order soon!
+                </p>
+              )}
             </div>
           )}
 
