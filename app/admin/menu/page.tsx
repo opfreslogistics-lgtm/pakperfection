@@ -240,19 +240,70 @@ export default function MenuManagementPage() {
           .single()
         
         if (error) {
-          // If error is about missing column, try without short_description
-          if (error.message?.includes('short_description') || error.message?.includes('column')) {
-            const { short_description, ...itemDataWithoutShortDesc } = itemData
+          // If error is about missing columns, try with only basic fields
+          if (error.message?.includes('column') || error.message?.includes('schema cache')) {
+            console.warn('Some columns are missing, attempting with basic fields only:', error.message)
+            
+            // Basic fields that should always exist
+            const basicItemData: any = {
+              name: itemForm.name,
+              description: itemForm.description || null,
+              price: parseFloat(itemForm.price),
+              category_id: itemForm.category_id,
+              image_url: itemForm.image_url || null,
+              featured: itemForm.featured,
+              available: itemForm.available,
+            }
+            
+            // Try to add fields that might exist
+            const optionalFields = [
+              'short_description', 'promo_price', 'promo_active', 'dietary_labels',
+              'variants', 'ingredients', 'allergen_flags', 'inventory_linked',
+              'current_stock', 'low_stock_threshold', 'prep_time_minutes',
+              'availability_schedule', 'menu_types', 'visible', 'homepage_featured',
+              'meta_title', 'meta_description', 'internal_notes', 'tags'
+            ]
+            
+            // Add each optional field if it exists in the form
+            for (const field of optionalFields) {
+              if (itemData[field] !== undefined && itemData[field] !== null) {
+                basicItemData[field] = itemData[field]
+              }
+            }
+            
             const { data: retryData, error: retryError } = await supabase
               .from('menu_items')
-              .update(itemDataWithoutShortDesc)
+              .update(basicItemData)
               .eq('id', editingItem.id)
               .select()
               .single()
             
-            if (retryError) throw retryError
-            itemId = retryData.id
-            toast.error('short_description column not found. Please run migration 007_add_short_description_to_menu_items.sql')
+            if (retryError) {
+              // If still failing, try with absolute minimal fields
+              const minimalData = {
+                name: itemForm.name,
+                description: itemForm.description || null,
+                price: parseFloat(itemForm.price),
+                category_id: itemForm.category_id,
+                image_url: itemForm.image_url || null,
+              }
+              
+              const { data: minimalRetryData, error: minimalRetryError } = await supabase
+                .from('menu_items')
+                .update(minimalData)
+                .eq('id', editingItem.id)
+                .select()
+                .single()
+              
+              if (minimalRetryError) throw minimalRetryError
+              itemId = minimalRetryData.id
+              toast.error('Some advanced fields were skipped. Please run FIX_MENU_ITEMS_COLUMNS.sql in your Supabase SQL editor.')
+            } else {
+              itemId = retryData.id
+              if (error.message?.includes('availability_schedule')) {
+                toast.error('Advanced fields missing. Please run FIX_MENU_ITEMS_COLUMNS.sql')
+              }
+            }
           } else {
             throw error
           }
@@ -267,18 +318,68 @@ export default function MenuManagementPage() {
           .single()
         
         if (error) {
-          // If error is about missing column, try without short_description
-          if (error.message?.includes('short_description') || error.message?.includes('column')) {
-            const { short_description, ...itemDataWithoutShortDesc } = itemData
+          // If error is about missing columns, try with only basic fields
+          if (error.message?.includes('column') || error.message?.includes('schema cache')) {
+            console.warn('Some columns are missing, attempting with basic fields only:', error.message)
+            
+            // Basic fields that should always exist
+            const basicItemData: any = {
+              name: itemForm.name,
+              description: itemForm.description || null,
+              price: parseFloat(itemForm.price),
+              category_id: itemForm.category_id,
+              image_url: itemForm.image_url || null,
+              featured: itemForm.featured,
+              available: itemForm.available,
+            }
+            
+            // Try to add fields that might exist
+            const optionalFields = [
+              'short_description', 'promo_price', 'promo_active', 'dietary_labels',
+              'variants', 'ingredients', 'allergen_flags', 'inventory_linked',
+              'current_stock', 'low_stock_threshold', 'prep_time_minutes',
+              'availability_schedule', 'menu_types', 'visible', 'homepage_featured',
+              'meta_title', 'meta_description', 'internal_notes', 'tags'
+            ]
+            
+            // Add each optional field if it exists in the form
+            for (const field of optionalFields) {
+              if (itemData[field] !== undefined && itemData[field] !== null) {
+                basicItemData[field] = itemData[field]
+              }
+            }
+            
             const { data: retryData, error: retryError } = await supabase
               .from('menu_items')
-              .insert(itemDataWithoutShortDesc)
+              .insert(basicItemData)
               .select()
               .single()
             
-            if (retryError) throw retryError
-            itemId = retryData.id
-            toast.error('short_description column not found. Please run migration 007_add_short_description_to_menu_items.sql')
+            if (retryError) {
+              // If still failing, try with absolute minimal fields
+              const minimalData = {
+                name: itemForm.name,
+                description: itemForm.description || null,
+                price: parseFloat(itemForm.price),
+                category_id: itemForm.category_id,
+                image_url: itemForm.image_url || null,
+              }
+              
+              const { data: minimalRetryData, error: minimalRetryError } = await supabase
+                .from('menu_items')
+                .insert(minimalData)
+                .select()
+                .single()
+              
+              if (minimalRetryError) throw minimalRetryError
+              itemId = minimalRetryData.id
+              toast.error('Some advanced fields were skipped. Please run FIX_MENU_ITEMS_COLUMNS.sql in your Supabase SQL editor.')
+            } else {
+              itemId = retryData.id
+              if (error.message?.includes('availability_schedule')) {
+                toast.error('Advanced fields missing. Please run FIX_MENU_ITEMS_COLUMNS.sql')
+              }
+            }
           } else {
             throw error
           }
